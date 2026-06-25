@@ -1,37 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hz_xg_pda/entity/loc_archive.dart';
 import 'package:hz_xg_pda/entity/pallet_product_item.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
+import 'package:hz_xg_pda/http/ApiException.dart';
 import 'package:hz_xg_pda/http/LocApi.dart';
+import 'package:hz_xg_pda/http/ProdTagApi.dart';
+import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
+import 'package:hz_xg_pda/util/PdaUtil.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
 
 class InboundState extends ChangeNotifier {
-  InboundState() {
+  InboundState({
+    List<ProdTag>? initialScannedTags,
+    bool useCache = true,
+  })  : _useCache = useCache,
+        _scannedTags = List<ProdTag>.from(
+          initialScannedTags ?? const <ProdTag>[],
+        ) {
     initLocList();
+    if (_useCache) {
+      _loadCachedTags();
+    }
   }
 
   List<LocArchive> _locationOptions = <LocArchive>[];
   LocArchive? _selectedLocation;
-
-  final List<ProdTag> _scannedTags = <ProdTag>[
-    const ProdTag(
-      id: '1',
-      tagNo: 'TAG-001',
-      prodOrderId: 'PO-1',
-      productCategory: '不锈钢垫片',
-      prodNo: 'SC20260429002',
-      qty: 60,
-    ),
-    const ProdTag(
-      id: '2',
-      tagNo: 'TAG-002',
-      prodOrderId: 'PO-2',
-      productCategory: '铝合金外壳',
-      prodNo: 'SC20260429003',
-      qty: 30,
-    ),
-  ];
+  final bool _useCache;
+  List<ProdTag> _scannedTags;
 
   List<LocArchive> get locationOptions => _locationOptions;
   LocArchive? get selectedLocation => _selectedLocation;
@@ -39,12 +36,56 @@ class InboundState extends ChangeNotifier {
 
   Future<void> initLocList() async {
     final res = await LocApi.list();
-    print(res);
     _locationOptions = res;
     if (_selectedLocation == null && _locationOptions.isNotEmpty) {
       _selectedLocation = _locationOptions.first;
     }
     notifyListeners();
+  }
+
+  Future<void> _loadCachedTags() async {
+    _scannedTags = List<ProdTag>.from(
+      await ProgTagCacheProvider.getTags(ProgTagCacheKey.inbound),
+    );
+    notifyListeners();
+  }
+
+  Future<void> onScanProduct(String barcode, BuildContext content) async {
+    final String cleanBarcode = barcode.trim();
+    if (cleanBarcode.isEmpty) {
+      return;
+    }
+
+    try {
+      FeedbackUtil.showLoading('正在获取标签信息...');
+      final ProdTag tag = await ProdTagApi.findByTagNo(cleanBarcode, 1, (e) {
+        PdaUtil.errorScan(content, e.message);
+      });
+
+      if (tag.id != null && _scannedTags.any((t) => t.id == tag.id)) {
+        PdaUtil.errorScan(content, '该标签已扫描');
+        EasyLoading.dismiss();
+        return;
+      }
+
+      _scannedTags = <ProdTag>[..._scannedTags, tag];
+      await _saveTags();
+      FeedbackUtil.showSuccess('添加成功');
+      notifyListeners();
+    } catch (e) {
+      final String message = e is ApiException ? e.message : e.toString();
+      FeedbackUtil.showError(message);
+    }
+  }
+
+  Future<void> _saveTags() async {
+    if (!_useCache) {
+      return;
+    }
+    await ProgTagCacheProvider.saveTags(
+      ProgTagCacheKey.inbound,
+      _scannedTags,
+    );
   }
 
   List<PalletProductItem> get products {
@@ -80,13 +121,6 @@ class InboundState extends ChangeNotifier {
 
   int get currentStep => 1;
 
-  void onScanProduct(String barcode, BuildContext context) {
-    if (barcode.trim().isEmpty) {
-      return;
-    }
-    FeedbackUtil.showInfo('已扫描: $barcode');
-  }
-
   void updateLocation(LocArchive? value) {
     if (value == null || value.id == _selectedLocation?.id) {
       return;
@@ -103,8 +137,6 @@ class InboundState extends ChangeNotifier {
     if (!confirm) {
       return;
     }
-
-
 
     FeedbackUtil.showLoading('入库中...');
     FeedbackUtil.showSuccess('确认入库成功');

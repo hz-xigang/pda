@@ -5,7 +5,7 @@ import 'package:hz_xg_pda/entity/prod_tag.dart';
 import 'package:hz_xg_pda/http/ApiException.dart';
 import 'package:hz_xg_pda/http/PalletApi.dart';
 import 'package:hz_xg_pda/http/ProdTagApi.dart';
-import 'package:hz_xg_pda/provider/PalletCacheProvider.dart';
+import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
 import 'package:hz_xg_pda/util/HapticUtil.dart';
 import 'package:hz_xg_pda/util/PdaUtil.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
@@ -32,7 +32,7 @@ class PalletState extends ChangeNotifier {
 
   Future<void> _loadCachedTags() async {
     _scannedTags = List<ProdTag>.from(
-      await PalletCacheProvider.getScannedTags(),
+      await ProgTagCacheProvider.getTags(ProgTagCacheKey.pallet),
     );
     notifyListeners();
   }
@@ -41,7 +41,10 @@ class PalletState extends ChangeNotifier {
     if (!_useCache) {
       return;
     }
-    await PalletCacheProvider.saveScannedTags(_scannedTags);
+    await ProgTagCacheProvider.saveTags(
+      ProgTagCacheKey.pallet,
+      _scannedTags,
+    );
   }
 
   List<PalletProductItem> get products {
@@ -125,7 +128,7 @@ class PalletState extends ChangeNotifier {
 
     _scannedTags = <ProdTag>[];
     if (_useCache) {
-      await PalletCacheProvider.clearScannedTags();
+      await ProgTagCacheProvider.clearTags(ProgTagCacheKey.pallet);
     }
     notifyListeners();
   }
