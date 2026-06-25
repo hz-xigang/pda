@@ -56,7 +56,7 @@ class WarehouseApp extends StatelessWidget {
         AppRoutes.cartonLabelPrint: (context) => CartonLabelPrintPage(),
         AppRoutes.cartonLabelList: (context) => const CartonLabelListPage(),
         AppRoutes.palletOperation: (context) => const PalletOperationPage(),
-        AppRoutes.palletInbound: (context) => const PalletInboundPage(),
+        AppRoutes.palletInbound: (context) => const InboundPage(),
       },
       builder: EasyLoading.init(),
     );

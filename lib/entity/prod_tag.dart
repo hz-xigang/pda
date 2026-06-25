@@ -14,6 +14,8 @@ class ProdTag {
     this.qty,
     this.prodNo,
     this.createTime,
+    this.spec,
+    this.customerCode,
   });
 
   final String? id;
@@ -26,6 +28,8 @@ class ProdTag {
   final double? qty;
   final String? prodNo;
   final DateTime? createTime;
+  final String? spec;
+  final String? customerCode;
 
   factory ProdTag.fromJson(Map<String, dynamic> json) {
     return ProdTag(
@@ -39,6 +43,8 @@ class ProdTag {
       qty: _asDouble(json['qty']),
       prodNo: _asString(json['prodNo']),
       createTime: _asDateTime(json['createTime']),
+      spec: _asString(json['spec']),
+      customerCode: _asString(json['customerCode']),
     );
   }
 
@@ -74,6 +80,8 @@ class ProdTag {
       'qty': qty,
       'prodNo': prodNo,
       'createTime': createTime?.toIso8601String(),
+      'spec': spec,
+      'customerCode': customerCode,
     };
   }
 
@@ -82,9 +90,7 @@ class ProdTag {
       return value;
     }
     if (value is Map) {
-      return value.map(
-        (key, item) => MapEntry(key.toString(), item),
-      );
+      return value.map((key, item) => MapEntry(key.toString(), item));
     }
     throw const FormatException('JSON value is not an object.');
   }
@@ -143,13 +149,15 @@ class ProdTagAdapter extends TypeAdapter<ProdTag> {
       qty: fields[7] as double?,
       prodNo: fields[8] as String?,
       createTime: fields[9] as DateTime?,
+      spec: fields[10] as String?,
+      customerCode: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProdTag obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -169,6 +177,10 @@ class ProdTagAdapter extends TypeAdapter<ProdTag> {
       ..writeByte(8)
       ..write(obj.prodNo)
       ..writeByte(9)
-      ..write(obj.createTime);
+      ..write(obj.createTime)
+      ..writeByte(10)
+      ..write(obj.spec)
+      ..writeByte(11)
+      ..write(obj.customerCode);
   }
 }

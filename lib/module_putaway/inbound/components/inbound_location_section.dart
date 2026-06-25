@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/entity/loc_archive.dart';
+import 'package:hz_xg_pda/module_putaway/inbound/state/inbound_state.dart';
 
-class PalletInboundLocationSection extends StatelessWidget {
-  const PalletInboundLocationSection({
-    super.key,
-    required this.locations,
-    required this.selectedLocation,
-    required this.onChanged,
-  });
-
-  final List<String> locations;
-  final String selectedLocation;
-  final ValueChanged<String?> onChanged;
+class InboundLocationSection extends StatelessWidget {
+  const InboundLocationSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final state = InboundScope.watch(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -65,17 +60,17 @@ class PalletInboundLocationSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: selectedLocation,
-                items: locations
+              DropdownButtonFormField<LocArchive>(
+                value: state.selectedLocation,
+                items: state.locationOptions
                     .map(
-                      (item) => DropdownMenuItem<String>(
+                      (item) => DropdownMenuItem<LocArchive>(
                         value: item,
-                        child: Text(item),
+                        child: Text(item.locCode ?? '--'),
                       ),
                     )
                     .toList(growable: false),
-                onChanged: onChanged,
+                onChanged: state.updateLocation,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,

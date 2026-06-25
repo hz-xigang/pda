@@ -63,7 +63,7 @@ class PalletState extends ChangeNotifier {
         prodOrderId: entry.key,
         name: firstTag.productCategory ?? '未知分类',
         prodNo: firstTag.prodNo ?? '未知单号',
-        spec: '生产订单ID: ${entry.key}',
+        spec: '${firstTag.spec ?? '--'} | ${firstTag.customerCode ?? '--'}',
         count: totalQty.toInt(),
         tags: tags,
       );
@@ -76,7 +76,7 @@ class PalletState extends ChangeNotifier {
 
   int get currentStep => _scannedTags.isEmpty ? 1 : 2;
 
-  Future<void> onScanProduct(String barcode,BuildContext content) async {
+  Future<void> onScanProduct(String barcode, BuildContext content) async {
     final String cleanBarcode = barcode.trim();
     if (cleanBarcode.isEmpty) {
       return;
@@ -84,13 +84,13 @@ class PalletState extends ChangeNotifier {
 
     try {
       FeedbackUtil.showLoading('正在获取标签信息...');
-      final ProdTag tag = await ProdTagApi.findByTagNo(cleanBarcode,1,(e){
-
+      final ProdTag tag = await ProdTagApi.findByTagNo(cleanBarcode, 1, (e) {
         PdaUtil.errorScan(content, e.message);
       });
 
       if (tag.id != null && _scannedTags.any((t) => t.id == tag.id)) {
-        FeedbackUtil.showInfo('该标签已扫描');
+        PdaUtil.errorScan(content, '该标签已扫描');
+        EasyLoading.dismiss();
         return;
       }
 

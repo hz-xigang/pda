@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/entity/loc_archive.dart';
 import 'package:hz_xg_pda/entity/pallet_product_item.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
+import 'package:hz_xg_pda/http/LocApi.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
 
-class PalletInboundState extends ChangeNotifier {
-  static const List<String> _locationOptions = <String>[
-    'A-02-05',
-    'A-02-06',
-    'B-01-01',
-    'C-03-02',
-  ];
+class InboundState extends ChangeNotifier {
+  InboundState() {
+    initLocList();
+  }
+
+  List<LocArchive> _locationOptions = <LocArchive>[];
+  LocArchive? _selectedLocation;
 
   final List<ProdTag> _scannedTags = <ProdTag>[
     const ProdTag(
@@ -31,10 +33,19 @@ class PalletInboundState extends ChangeNotifier {
     ),
   ];
 
-  String _selectedLocation = _locationOptions.first;
+  List<LocArchive> get locationOptions => _locationOptions;
+  LocArchive? get selectedLocation => _selectedLocation;
+  String get selectedLocationLabel => _selectedLocation?.locCode ?? '';
 
-  List<String> get locationOptions => _locationOptions;
-  String get selectedLocation => _selectedLocation;
+  Future<void> initLocList() async {
+    final res = await LocApi.list();
+    print(res);
+    _locationOptions = res;
+    if (_selectedLocation == null && _locationOptions.isNotEmpty) {
+      _selectedLocation = _locationOptions.first;
+    }
+    notifyListeners();
+  }
 
   List<PalletProductItem> get products {
     final Map<String, List<ProdTag>> groups = <String, List<ProdTag>>{};
@@ -76,8 +87,8 @@ class PalletInboundState extends ChangeNotifier {
     FeedbackUtil.showInfo('已扫描: $barcode');
   }
 
-  void updateLocation(String? value) {
-    if (value == null || value == _selectedLocation) {
+  void updateLocation(LocArchive? value) {
+    if (value == null || value.id == _selectedLocation?.id) {
       return;
     }
     _selectedLocation = value;
@@ -92,6 +103,8 @@ class PalletInboundState extends ChangeNotifier {
     if (!confirm) {
       return;
     }
+
+
 
     FeedbackUtil.showLoading('入库中...');
     FeedbackUtil.showSuccess('确认入库成功');
@@ -109,25 +122,25 @@ class PalletInboundState extends ChangeNotifier {
   }
 }
 
-class PalletInboundScope extends InheritedNotifier<PalletInboundState> {
-  const PalletInboundScope({
+class InboundScope extends InheritedNotifier<InboundState> {
+  const InboundScope({
     super.key,
-    required PalletInboundState notifier,
+    required InboundState notifier,
     required super.child,
   }) : super(notifier: notifier);
 
-  static PalletInboundState watch(BuildContext context) {
-    final PalletInboundScope? scope =
-        context.dependOnInheritedWidgetOfExactType<PalletInboundScope>();
-    assert(scope != null, 'PalletInboundScope not found in context.');
+  static InboundState watch(BuildContext context) {
+    final InboundScope? scope =
+        context.dependOnInheritedWidgetOfExactType<InboundScope>();
+    assert(scope != null, 'InboundScope not found in context.');
     return scope!.notifier!;
   }
 
-  static PalletInboundState read(BuildContext context) {
+  static InboundState read(BuildContext context) {
     final InheritedElement? element =
-        context.getElementForInheritedWidgetOfExactType<PalletInboundScope>();
-    final PalletInboundScope? scope = element?.widget as PalletInboundScope?;
-    assert(scope != null, 'PalletInboundScope not found in context.');
+        context.getElementForInheritedWidgetOfExactType<InboundScope>();
+    final InboundScope? scope = element?.widget as InboundScope?;
+    assert(scope != null, 'InboundScope not found in context.');
     return scope!.notifier!;
   }
 }
