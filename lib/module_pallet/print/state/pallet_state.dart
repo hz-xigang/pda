@@ -1,55 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hz_xg_pda/entity/pallet_product_item.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
-import 'package:hz_xg_pda/http/ApiException.dart';
 import 'package:hz_xg_pda/http/PalletApi.dart';
-import 'package:hz_xg_pda/http/ProdTagApi.dart';
 import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
-import 'package:hz_xg_pda/util/HapticUtil.dart';
-import 'package:hz_xg_pda/util/PdaUtil.dart';
+import 'package:hz_xg_pda/state/base_prod_tag_scan_state.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
-import 'package:vibration/vibration.dart';
 
-class PalletState extends ChangeNotifier {
+class PalletState extends BaseProdTagScanState {
   PalletState({
     List<ProdTag>? initialScannedTags,
     bool useCache = true,
-  })  : _useCache = useCache,
-        _scannedTags = List<ProdTag>.from(
-          initialScannedTags ?? const <ProdTag>[],
+  }) : super(
+          initialScannedTags: initialScannedTags,
+          useCache: useCache,
         ) {
-    if (_useCache) {
-      _loadCachedTags();
+    if (this.useCache) {
+      loadCachedTags();
     }
   }
 
-  final bool _useCache;
-  List<ProdTag> _scannedTags;
+  @override
+  ProgTagCacheKey get cacheKey => ProgTagCacheKey.pallet;
 
-  List<ProdTag> get scannedTags => _scannedTags;
-
-  Future<void> _loadCachedTags() async {
-    _scannedTags = List<ProdTag>.from(
-      await ProgTagCacheProvider.getTags(ProgTagCacheKey.pallet),
-    );
-    notifyListeners();
-  }
-
-  Future<void> _saveTags() async {
-    if (!_useCache) {
-      return;
-    }
-    await ProgTagCacheProvider.saveTags(
-      ProgTagCacheKey.pallet,
-      _scannedTags,
-    );
-  }
+  @override
+  int get palletFlag => 1;
 
   List<PalletProductItem> get products {
     final Map<String, List<ProdTag>> groups = <String, List<ProdTag>>{};
-    for (final ProdTag tag in _scannedTags) {
+    for (final ProdTag tag in scannedTags) {
       final String poId = tag.prodOrderId ?? 'unknown_po';
       groups.putIfAbsent(poId, () => <ProdTag>[]).add(tag);
     }
@@ -73,42 +52,14 @@ class PalletState extends ChangeNotifier {
     }).toList();
   }
 
-  int get totalCount => _scannedTags
+  int get totalCount => scannedTags
       .fold<double>(0.0, (sum, tag) => sum + (tag.qty ?? 0.0))
       .toInt();
 
-  int get currentStep => _scannedTags.isEmpty ? 1 : 2;
-
-  Future<void> onScanProduct(String barcode, BuildContext content) async {
-    final String cleanBarcode = barcode.trim();
-    if (cleanBarcode.isEmpty) {
-      return;
-    }
-
-    try {
-      FeedbackUtil.showLoading('正在获取标签信息...');
-      final ProdTag tag = await ProdTagApi.findByTagNo(cleanBarcode, 1, (e) {
-        PdaUtil.errorScan(content, e.message);
-      });
-
-      if (tag.id != null && _scannedTags.any((t) => t.id == tag.id)) {
-        PdaUtil.errorScan(content, '该标签已扫描');
-        EasyLoading.dismiss();
-        return;
-      }
-
-      _scannedTags = <ProdTag>[..._scannedTags, tag];
-      await _saveTags();
-      FeedbackUtil.showSuccess('添加成功');
-      notifyListeners();
-    } catch (e) {
-      final String message = e is ApiException ? e.message : e.toString();
-      FeedbackUtil.showError(message);
-    }
-  }
+  int get currentStep => scannedTags.isEmpty ? 1 : 2;
 
   Future<void> confirmPallet(BuildContext context) async {
-    if (_scannedTags.isEmpty) {
+    if (scannedTags.isEmpty) {
       FeedbackUtil.showInfo('暂无可确认的条码');
       return;
     }
@@ -121,30 +72,28 @@ class PalletState extends ChangeNotifier {
       return;
     }
 
-    final List<String> tagNos = _scannedTags.map((it) => '${it.tagNo}').toList();
+    final List<String> tagNos = scannedTags.map((it) => '${it.tagNo}').toList();
     FeedbackUtil.showLoading('上传中...');
     await PalletApi.add(tagNos);
     FeedbackUtil.showSuccess('上传成功');
 
-    _scannedTags = <ProdTag>[];
-    if (_useCache) {
-      await ProgTagCacheProvider.clearTags(ProgTagCacheKey.pallet);
-    }
+    scannedTags = <ProdTag>[];
+    await clearCachedTags();
     notifyListeners();
   }
 
   void removeTags(List<ProdTag> tagsToRemove) async {
     final Set<String> removedKeys = tagsToRemove.map(_tagIdentity).toSet();
-    _scannedTags = _scannedTags
+    scannedTags = scannedTags
         .where((tag) => !removedKeys.contains(_tagIdentity(tag)))
         .toList();
-    await _saveTags();
+    await saveTags();
     notifyListeners();
   }
 
   void removeProductGroup(String prodNo) async {
-    _scannedTags = _scannedTags.where((tag) => tag.prodNo != prodNo).toList();
-    await _saveTags();
+    scannedTags = scannedTags.where((tag) => tag.prodNo != prodNo).toList();
+    await saveTags();
     notifyListeners();
   }
 
