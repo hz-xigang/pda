@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
 
-class PalletTagDetailState extends ChangeNotifier {
+class TagDetailState extends ChangeNotifier {
   final Set<String> _selectedTagKeys = <String>{};
 
   Set<String> get selectedTagKeys => _selectedTagKeys;
@@ -49,25 +49,25 @@ class PalletTagDetailState extends ChangeNotifier {
   }
 }
 
-class PalletTagDetailScope extends InheritedNotifier<PalletTagDetailState> {
-  const PalletTagDetailScope({
+class TagDetailScope extends InheritedNotifier<TagDetailState> {
+  const TagDetailScope({
     super.key,
-    required PalletTagDetailState notifier,
+    required TagDetailState notifier,
     required super.child,
   }) : super(notifier: notifier);
 
-  static PalletTagDetailState watch(BuildContext context) {
-    final PalletTagDetailScope? scope =
-        context.dependOnInheritedWidgetOfExactType<PalletTagDetailScope>();
-    assert(scope != null, 'PalletTagDetailScope not found in context.');
+  static TagDetailState watch(BuildContext context) {
+    final TagDetailScope? scope =
+        context.dependOnInheritedWidgetOfExactType<TagDetailScope>();
+    assert(scope != null, 'TagDetailScope not found in context.');
     return scope!.notifier!;
   }
 
-  static PalletTagDetailState read(BuildContext context) {
+  static TagDetailState read(BuildContext context) {
     final InheritedElement? element =
-        context.getElementForInheritedWidgetOfExactType<PalletTagDetailScope>();
-    final PalletTagDetailScope? scope = element?.widget as PalletTagDetailScope?;
-    assert(scope != null, 'PalletTagDetailScope not found in context.');
+        context.getElementForInheritedWidgetOfExactType<TagDetailScope>();
+    final TagDetailScope? scope = element?.widget as TagDetailScope?;
+    assert(scope != null, 'TagDetailScope not found in context.');
     return scope!.notifier!;
   }
 }

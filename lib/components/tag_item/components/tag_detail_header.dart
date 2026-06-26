@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class PalletTagDetailHeader extends StatelessWidget {
-  const PalletTagDetailHeader({super.key});
+class TagDetailHeader extends StatelessWidget {
+  const TagDetailHeader({super.key});
 
   @override
   Widget build(BuildContext context) {

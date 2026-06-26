@@ -3,6 +3,7 @@ import 'package:hz_xg_pda/entity/loc_archive.dart';
 import 'package:hz_xg_pda/entity/pallet_product_item.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
 import 'package:hz_xg_pda/http/LocApi.dart';
+import 'package:hz_xg_pda/http/StockInApi.dart';
 import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
 import 'package:hz_xg_pda/state/base_prod_tag_scan_state.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
@@ -29,7 +30,7 @@ class InboundState extends BaseProdTagScanState {
   ProgTagCacheKey get cacheKey => ProgTagCacheKey.inbound;
 
   @override
-  int get palletFlag => 1;
+  int get tagFlag => 2;
 
   List<LocArchive> get locationOptions => _locationOptions;
   LocArchive? get selectedLocation => _selectedLocation;
@@ -63,7 +64,7 @@ class InboundState extends BaseProdTagScanState {
         prodOrderId: entry.key,
         name: firstTag.productCategory ?? '--',
         prodNo: firstTag.prodNo ?? '--',
-        spec: _mockSpec(firstTag.prodOrderId),
+        spec: '${firstTag.spec ?? '--'} | ${firstTag.inventoryCode ?? '--'}',
         count: totalQty,
         tags: tags,
       );
@@ -86,6 +87,12 @@ class InboundState extends BaseProdTagScanState {
   }
 
   Future<void> confirmInbound(BuildContext context) async {
+
+    if (scannedTags.isEmpty) {
+      FeedbackUtil.showInfo('暂无可确认的条码');
+      return;
+    }
+
     final bool confirm = await DialogUtil.showConfirmDialog(
       context,
       content: '确认入库吗？',
@@ -94,20 +101,21 @@ class InboundState extends BaseProdTagScanState {
       return;
     }
 
+    final List<String> tagNos = scannedTags.map((it) => '${it.tagNo}').toList();
+    var locId = selectedLocation?.id;
+
     FeedbackUtil.showLoading('入库中...');
-    FeedbackUtil.showSuccess('确认入库成功');
+    await StockInApi.add({
+      "locId" : locId,
+      "tagNos" : tagNos
+    });
+    FeedbackUtil.showSuccess('入库成功');
+    scannedTags = <ProdTag>[];
+    await clearCachedTags();
+    notifyListeners();
   }
 
-  static String _mockSpec(String? prodOrderId) {
-    switch (prodOrderId) {
-      case 'PO-1':
-        return 'SP-304-10 | INV-20240078';
-      case 'PO-2':
-        return 'AL-CASE-08 | INV-20240102';
-      default:
-        return '--';
-    }
-  }
+
 }
 
 class InboundScope extends InheritedNotifier<InboundState> {

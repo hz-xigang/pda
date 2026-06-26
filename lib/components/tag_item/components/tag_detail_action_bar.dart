@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class PalletTagDetailActionBar extends StatelessWidget {
-  const PalletTagDetailActionBar({
+class TagDetailActionBar extends StatelessWidget {
+  const TagDetailActionBar({
     super.key,
     required this.onDeleteSelected,
     required this.onDeleteAll,

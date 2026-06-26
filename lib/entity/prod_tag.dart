@@ -16,6 +16,7 @@ class ProdTag {
     this.createTime,
     this.spec,
     this.customerCode,
+    this.inventoryCode,
   });
 
   final String? id;
@@ -30,6 +31,7 @@ class ProdTag {
   final DateTime? createTime;
   final String? spec;
   final String? customerCode;
+  final String? inventoryCode;
 
   factory ProdTag.fromJson(Map<String, dynamic> json) {
     return ProdTag(
@@ -45,6 +47,7 @@ class ProdTag {
       createTime: _asDateTime(json['createTime']),
       spec: _asString(json['spec']),
       customerCode: _asString(json['customerCode']),
+      inventoryCode: _asString(json['inventoryCode']),
     );
   }
 
@@ -82,6 +85,7 @@ class ProdTag {
       'createTime': createTime?.toIso8601String(),
       'spec': spec,
       'customerCode': customerCode,
+      'inventoryCode': inventoryCode,
     };
   }
 
@@ -151,13 +155,14 @@ class ProdTagAdapter extends TypeAdapter<ProdTag> {
       createTime: fields[9] as DateTime?,
       spec: fields[10] as String?,
       customerCode: fields[11] as String?,
+      inventoryCode: fields[12] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProdTag obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -181,6 +186,8 @@ class ProdTagAdapter extends TypeAdapter<ProdTag> {
       ..writeByte(10)
       ..write(obj.spec)
       ..writeByte(11)
-      ..write(obj.customerCode);
+      ..write(obj.customerCode)
+      ..write(12)
+      ..write(obj.inventoryCode);
   }
 }

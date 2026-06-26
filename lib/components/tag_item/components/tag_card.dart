@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
 
-class PalletTagCard extends StatelessWidget {
-  const PalletTagCard({
+class TagCard extends StatelessWidget {
+  const TagCard({
     super.key,
     required this.tag,
     required this.spec,

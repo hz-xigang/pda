@@ -14,7 +14,6 @@ class PalletApi {
       _basePath,
       data: data,
     );
-
   }
 
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/components/tag_item/index.dart';
 import 'package:hz_xg_pda/components/workflow/product_list_view.dart';
 import 'package:hz_xg_pda/module_pallet/print/state/pallet_state.dart';
-import 'package:hz_xg_pda/module_pallet/tag_item/index.dart';
 
 class PalletProductList extends StatelessWidget {
   const PalletProductList({super.key});
@@ -23,7 +23,17 @@ class PalletProductList extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => PalletScope(
               notifier: palletState,
-              child: PalletTagDetailPage(productItem: item),
+              child: TagDetailPage(
+                productItem: item,
+                loadTags: () => palletState.scannedTags
+                    .where(
+                      (tag) =>
+                          (tag.prodOrderId ?? 'unknown_po') == item.prodOrderId,
+                    )
+                    .toList(growable: false),
+                onDeleteSelected: palletState.removeTags,
+                onDeleteAll: palletState.removeProductGroup,
+              ),
             ),
           ),
         );

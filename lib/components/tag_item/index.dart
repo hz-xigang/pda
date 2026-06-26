@@ -1,34 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/components/app_back_bar.dart';
+import 'package:hz_xg_pda/components/tag_item/components/tag_detail_action_bar.dart';
+import 'package:hz_xg_pda/components/tag_item/components/tag_detail_header.dart';
+import 'package:hz_xg_pda/components/tag_item/components/tag_detail_list.dart';
+import 'package:hz_xg_pda/components/tag_item/state/tag_detail_state.dart';
 import 'package:hz_xg_pda/entity/pallet_product_item.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
-import 'package:hz_xg_pda/module_pallet/print/state/pallet_state.dart';
-import 'package:hz_xg_pda/module_pallet/tag_item/components/pallet_tag_detail_action_bar.dart';
-import 'package:hz_xg_pda/module_pallet/tag_item/components/pallet_tag_detail_header.dart';
-import 'package:hz_xg_pda/module_pallet/tag_item/components/pallet_tag_detail_list.dart';
-import 'package:hz_xg_pda/module_pallet/tag_item/state/pallet_tag_detail_state.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
 
-class PalletTagDetailPage extends StatefulWidget {
-  const PalletTagDetailPage({
+class TagDetailPage extends StatefulWidget {
+  const TagDetailPage({
     super.key,
     required this.productItem,
+    required this.loadTags,
+    required this.onDeleteSelected,
+    required this.onDeleteAll,
   });
 
   final PalletProductItem productItem;
+  final List<ProdTag> Function() loadTags;
+  final Future<void> Function(List<ProdTag> selectedTags) onDeleteSelected;
+  final Future<void> Function(String prodNo) onDeleteAll;
 
   @override
-  State<PalletTagDetailPage> createState() => _PalletTagDetailPageState();
+  State<TagDetailPage> createState() => _TagDetailPageState();
 }
 
-class _PalletTagDetailPageState extends State<PalletTagDetailPage> {
-  late final PalletTagDetailState _detailState;
+class _TagDetailPageState extends State<TagDetailPage> {
+  late final TagDetailState _detailState;
 
   @override
   void initState() {
     super.initState();
-    _detailState = PalletTagDetailState();
+    _detailState = TagDetailState();
   }
 
   @override
@@ -38,18 +43,12 @@ class _PalletTagDetailPageState extends State<PalletTagDetailPage> {
   }
 
   List<ProdTag> _currentTags() {
-    final PalletState palletState = PalletScope.read(context);
-    return palletState.scannedTags
-        .where(
-          (tag) =>
-              (tag.prodOrderId ?? 'unknown_po') == widget.productItem.prodOrderId,
-        )
-        .toList(growable: false);
+    return widget.loadTags();
   }
 
   Future<void> _deleteSelected() async {
-    final List<ProdTag> currentTags = _currentTags();
-    final List<ProdTag> selectedTags = _detailState.selectedTags(currentTags);
+    final currentTags = _currentTags();
+    final selectedTags = _detailState.selectedTags(currentTags);
     if (selectedTags.isEmpty) {
       FeedbackUtil.showSnackBar(context, '请先选择要删除的条码');
       return;
@@ -63,8 +62,7 @@ class _PalletTagDetailPageState extends State<PalletTagDetailPage> {
       return;
     }
 
-    final PalletState palletState = PalletScope.read(context);
-    palletState.removeTags(selectedTags);
+    await widget.onDeleteSelected(selectedTags);
     _detailState.clearSelection();
   }
 
@@ -77,25 +75,18 @@ class _PalletTagDetailPageState extends State<PalletTagDetailPage> {
       return;
     }
 
-    final PalletState palletState = PalletScope.read(context);
-    palletState.removeProductGroup(widget.productItem.prodNo);
+    await widget.onDeleteAll(widget.productItem.prodNo);
     _detailState.clearSelection();
   }
 
   @override
   Widget build(BuildContext context) {
-    final PalletState palletState = PalletScope.watch(context);
-    final List<ProdTag> currentTags = palletState.scannedTags
-        .where(
-          (tag) =>
-              (tag.prodOrderId ?? 'unknown_po') == widget.productItem.prodOrderId,
-        )
-        .toList(growable: false);
+    final currentTags = _currentTags();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F6FB),
       body: SafeArea(
-        child: PalletTagDetailScope(
+        child: TagDetailScope(
           notifier: _detailState,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
@@ -104,16 +95,16 @@ class _PalletTagDetailPageState extends State<PalletTagDetailPage> {
               children: [
                 AppBackBar(onTap: () => Navigator.pop(context)),
                 const SizedBox(height: 16),
-                const PalletTagDetailHeader(),
+                const TagDetailHeader(),
                 const SizedBox(height: 12),
                 Expanded(
-                  child: PalletTagDetailList(
+                  child: TagDetailList(
                     tags: currentTags,
                     spec: widget.productItem.spec,
                   ),
                 ),
                 const SizedBox(height: 16),
-                PalletTagDetailActionBar(
+                TagDetailActionBar(
                   onDeleteSelected: _deleteSelected,
                   onDeleteAll: _deleteAll,
                 ),

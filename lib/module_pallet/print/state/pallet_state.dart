@@ -24,7 +24,7 @@ class PalletState extends BaseProdTagScanState {
   ProgTagCacheKey get cacheKey => ProgTagCacheKey.pallet;
 
   @override
-  int get palletFlag => 1;
+  int get tagFlag => 1;
 
   List<PalletProductItem> get products {
     final Map<String, List<ProdTag>> groups = <String, List<ProdTag>>{};
@@ -45,7 +45,7 @@ class PalletState extends BaseProdTagScanState {
         prodOrderId: entry.key,
         name: firstTag.productCategory ?? '未知分类',
         prodNo: firstTag.prodNo ?? '未知单号',
-        spec: '${firstTag.spec ?? '--'} | ${firstTag.customerCode ?? '--'}',
+        spec: '${firstTag.spec ?? '--'} | ${firstTag.inventoryCode ?? '--'}',
         count: totalQty.toInt(),
         tags: tags,
       );
@@ -80,32 +80,6 @@ class PalletState extends BaseProdTagScanState {
     scannedTags = <ProdTag>[];
     await clearCachedTags();
     notifyListeners();
-  }
-
-  void removeTags(List<ProdTag> tagsToRemove) async {
-    final Set<String> removedKeys = tagsToRemove.map(_tagIdentity).toSet();
-    scannedTags = scannedTags
-        .where((tag) => !removedKeys.contains(_tagIdentity(tag)))
-        .toList();
-    await saveTags();
-    notifyListeners();
-  }
-
-  void removeProductGroup(String prodNo) async {
-    scannedTags = scannedTags.where((tag) => tag.prodNo != prodNo).toList();
-    await saveTags();
-    notifyListeners();
-  }
-
-  String _tagIdentity(ProdTag tag) {
-    return <String>[
-      tag.id ?? '',
-      tag.tagNo ?? '',
-      tag.prodOrderId ?? '',
-      tag.prodNo ?? '',
-      tag.qty?.toString() ?? '',
-      tag.createTime?.toIso8601String() ?? '',
-    ].join('|');
   }
 }
 

@@ -22,7 +22,7 @@ abstract class BaseProdTagScanState extends ChangeNotifier {
   ProgTagCacheKey get cacheKey;
 
   @protected
-  int get palletFlag;
+  int get tagFlag;
 
   Future<void> loadCachedTags() async {
     scannedTags = List<ProdTag>.from(
@@ -55,7 +55,7 @@ abstract class BaseProdTagScanState extends ChangeNotifier {
       FeedbackUtil.showLoading('正在获取标签信息...');
       final ProdTag tag = await ProdTagApi.findByTagNo(
         cleanBarcode,
-        palletFlag,
+        tagFlag,
         (e) => PdaUtil.errorScan(context, e.message),
       );
 
@@ -73,5 +73,32 @@ abstract class BaseProdTagScanState extends ChangeNotifier {
       final String message = e is ApiException ? e.message : e.toString();
       FeedbackUtil.showError(message);
     }
+  }
+
+  Future<void> removeTags(List<ProdTag> tagsToRemove) async {
+    final Set<String> removedKeys = tagsToRemove.map(tagIdentity).toSet();
+    scannedTags = scannedTags
+        .where((tag) => !removedKeys.contains(tagIdentity(tag)))
+        .toList();
+    await saveTags();
+    notifyListeners();
+  }
+
+  Future<void> removeProductGroup(String prodNo) async {
+    scannedTags = scannedTags.where((tag) => tag.prodNo != prodNo).toList();
+    await saveTags();
+    notifyListeners();
+  }
+
+  @protected
+  String tagIdentity(ProdTag tag) {
+    return <String>[
+      tag.id ?? '',
+      tag.tagNo ?? '',
+      tag.prodOrderId ?? '',
+      tag.prodNo ?? '',
+      tag.qty?.toString() ?? '',
+      tag.createTime?.toIso8601String() ?? '',
+    ].join('|');
   }
 }

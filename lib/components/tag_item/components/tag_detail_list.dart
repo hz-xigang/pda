@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/components/tag_item/components/tag_card.dart';
+import 'package:hz_xg_pda/components/tag_item/state/tag_detail_state.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
-import 'package:hz_xg_pda/module_pallet/tag_item/components/pallet_tag_card.dart';
-import 'package:hz_xg_pda/module_pallet/tag_item/state/pallet_tag_detail_state.dart';
 
-class PalletTagDetailList extends StatelessWidget {
-  const PalletTagDetailList({
+class TagDetailList extends StatelessWidget {
+  const TagDetailList({
     super.key,
     required this.tags,
     required this.spec,
@@ -15,7 +15,7 @@ class PalletTagDetailList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final detailState = PalletTagDetailScope.watch(context);
+    final detailState = TagDetailScope.watch(context);
 
     if (tags.isEmpty) {
       return const Center(
@@ -36,8 +36,8 @@ class PalletTagDetailList extends StatelessWidget {
         final tag = tags[index];
         final tagKey = detailState.buildTagKey(tag, index);
 
-        return PalletTagCard(
-          key: ValueKey<String>('pallet-tag-card-$tagKey'),
+        return TagCard(
+          key: ValueKey<String>('tag-card-$tagKey'),
           tag: tag,
           spec: spec,
           isSelected: detailState.isSelected(tagKey),
