@@ -36,11 +36,11 @@ class ProdTagApi {
     return ProdTag.listFromDynamic(res);
   }
 
-  static Future<ProdTag> findByTagNo(String tagNo,int pallet,
+  static Future<ProdTag> findByTagNo(String tagNo,int type,
       void Function(ApiException exception)? onError) async
   {
     final dynamic res = await ApiClient.instance.get(
-      '$_basePath/tag/$tagNo?pallet=$pallet',
+      '$_basePath/tag/$tagNo?type=$type',
       options: Options(
         contentType: Headers.jsonContentType,
       ),

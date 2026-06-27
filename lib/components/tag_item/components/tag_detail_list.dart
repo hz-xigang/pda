@@ -7,11 +7,11 @@ class TagDetailList extends StatelessWidget {
   const TagDetailList({
     super.key,
     required this.tags,
-    required this.spec,
+    required this.themeColor,
   });
 
   final List<ProdTag> tags;
-  final String spec;
+  final Color themeColor;
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +39,9 @@ class TagDetailList extends StatelessWidget {
         return TagCard(
           key: ValueKey<String>('tag-card-$tagKey'),
           tag: tag,
-          spec: spec,
           isSelected: detailState.isSelected(tagKey),
           onTap: () => detailState.toggleSelect(tagKey),
+          themeColor: themeColor,
         );
       },
     );

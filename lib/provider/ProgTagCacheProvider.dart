@@ -4,6 +4,7 @@ import 'package:hz_xg_pda/entity/prod_tag.dart';
 enum ProgTagCacheKey {
   pallet,
   inbound,
+  move,
 }
 
 class ProgTagCacheProvider {

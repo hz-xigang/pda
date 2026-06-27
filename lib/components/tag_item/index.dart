@@ -16,12 +16,14 @@ class TagDetailPage extends StatefulWidget {
     required this.loadTags,
     required this.onDeleteSelected,
     required this.onDeleteAll,
+    required this.themeColor,
   });
 
   final PalletProductItem productItem;
   final List<ProdTag> Function() loadTags;
   final Future<void> Function(List<ProdTag> selectedTags) onDeleteSelected;
   final Future<void> Function(String prodNo) onDeleteAll;
+  final Color themeColor;
 
   @override
   State<TagDetailPage> createState() => _TagDetailPageState();
@@ -95,12 +97,12 @@ class _TagDetailPageState extends State<TagDetailPage> {
               children: [
                 AppBackBar(onTap: () => Navigator.pop(context)),
                 const SizedBox(height: 16),
-                const TagDetailHeader(),
+                TagDetailHeader(themeColor: widget.themeColor),
                 const SizedBox(height: 12),
                 Expanded(
                   child: TagDetailList(
                     tags: currentTags,
-                    spec: widget.productItem.spec,
+                    themeColor: widget.themeColor,
                   ),
                 ),
                 const SizedBox(height: 16),

@@ -33,6 +33,7 @@ class PalletProductList extends StatelessWidget {
                     .toList(growable: false),
                 onDeleteSelected: palletState.removeTags,
                 onDeleteAll: palletState.removeProductGroup,
+                themeColor: const Color(0xFF8B3DFF),
               ),
             ),
           ),

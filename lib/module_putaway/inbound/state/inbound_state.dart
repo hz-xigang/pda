@@ -1,30 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:hz_xg_pda/entity/loc_archive.dart';
-import 'package:hz_xg_pda/entity/pallet_product_item.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
-import 'package:hz_xg_pda/http/LocApi.dart';
 import 'package:hz_xg_pda/http/StockInApi.dart';
+import 'package:hz_xg_pda/module_putaway/base/base_putaway_state.dart';
 import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
-import 'package:hz_xg_pda/state/base_prod_tag_scan_state.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
 
-class InboundState extends BaseProdTagScanState {
+class InboundState extends BasePutawayState {
   InboundState({
     List<ProdTag>? initialScannedTags,
     bool useCache = true,
   }) : super(
           initialScannedTags: initialScannedTags,
           useCache: useCache,
-        ) {
-    initLocList();
-    if (this.useCache) {
-      loadCachedTags();
-    }
-  }
-
-  List<LocArchive> _locationOptions = <LocArchive>[];
-  LocArchive? _selectedLocation;
+        );
 
   @override
   ProgTagCacheKey get cacheKey => ProgTagCacheKey.inbound;
@@ -32,62 +21,12 @@ class InboundState extends BaseProdTagScanState {
   @override
   int get tagFlag => 2;
 
-  List<LocArchive> get locationOptions => _locationOptions;
-  LocArchive? get selectedLocation => _selectedLocation;
-  String get selectedLocationLabel => _selectedLocation?.locCode ?? '';
-
-  Future<void> initLocList() async {
-    final res = await LocApi.list();
-    _locationOptions = res;
-    if (_selectedLocation == null && _locationOptions.isNotEmpty) {
-      _selectedLocation = _locationOptions.first;
-    }
-    notifyListeners();
-  }
-
-  List<PalletProductItem> get products {
-    final Map<String, List<ProdTag>> groups = <String, List<ProdTag>>{};
-    for (final ProdTag tag in scannedTags) {
-      final String poId = tag.prodOrderId ?? 'unknown_po';
-      groups.putIfAbsent(poId, () => <ProdTag>[]).add(tag);
-    }
-
-    return groups.entries.map((entry) {
-      final List<ProdTag> tags = entry.value;
-      final ProdTag firstTag = tags.first;
-      final int totalQty = tags.fold<int>(
-        0,
-        (sum, tag) => sum + (tag.qty ?? 0).toInt(),
-      );
-
-      return PalletProductItem(
-        prodOrderId: entry.key,
-        name: firstTag.productCategory ?? '--',
-        prodNo: firstTag.prodNo ?? '--',
-        spec: '${firstTag.spec ?? '--'} | ${firstTag.inventoryCode ?? '--'}',
-        count: totalQty,
-        tags: tags,
-      );
-    }).toList(growable: false);
-  }
-
-  int get totalCount => scannedTags.fold<int>(
-        0,
-        (sum, tag) => sum + (tag.qty ?? 0).toInt(),
-      );
-
-  int get currentStep => 1;
-
-  void updateLocation(LocArchive? value) {
-    if (value == null || value.id == _selectedLocation?.id) {
-      return;
-    }
-    _selectedLocation = value;
-    notifyListeners();
+  @override
+  String buildSpec(ProdTag firstTag) {
+    return '${firstTag.spec ?? '--'} | ${firstTag.inventoryCode ?? '--'}';
   }
 
   Future<void> confirmInbound(BuildContext context) async {
-
     if (scannedTags.isEmpty) {
       FeedbackUtil.showInfo('暂无可确认的条码');
       return;
@@ -102,20 +41,18 @@ class InboundState extends BaseProdTagScanState {
     }
 
     final List<String> tagNos = scannedTags.map((it) => '${it.tagNo}').toList();
-    var locId = selectedLocation?.id;
+    final locId = selectedLocation?.id;
 
     FeedbackUtil.showLoading('入库中...');
     await StockInApi.add({
-      "locId" : locId,
-      "tagNos" : tagNos
+      'locId': locId,
+      'tagNos': tagNos,
     });
     FeedbackUtil.showSuccess('入库成功');
     scannedTags = <ProdTag>[];
     await clearCachedTags();
     notifyListeners();
   }
-
-
 }
 
 class InboundScope extends InheritedNotifier<InboundState> {

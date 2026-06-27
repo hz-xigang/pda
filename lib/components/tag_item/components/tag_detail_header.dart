@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
 class TagDetailHeader extends StatelessWidget {
-  const TagDetailHeader({super.key});
+  const TagDetailHeader({
+    super.key,
+    required this.themeColor,
+  });
+
+  final Color themeColor;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -15,13 +20,13 @@ class TagDetailHeader extends StatelessWidget {
               height: 9,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: Color(0xFF2E61F3),
+                  color: themeColor,
                   shape: BoxShape.circle,
                 ),
               ),
             ),
-            SizedBox(width: 8),
-            Text(
+            const SizedBox(width: 8),
+            const Text(
               '条码明细',
               style: TextStyle(
                 fontSize: 18,
@@ -31,8 +36,8 @@ class TagDetailHeader extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 6),
-        Text(
+        const SizedBox(height: 6),
+        const Text(
           '点击条码选择要删除的项',
           style: TextStyle(
             fontSize: 13,

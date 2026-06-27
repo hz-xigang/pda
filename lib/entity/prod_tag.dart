@@ -17,6 +17,8 @@ class ProdTag {
     this.spec,
     this.customerCode,
     this.inventoryCode,
+    this.locId,
+    this.locCode,
   });
 
   final String? id;
@@ -32,6 +34,8 @@ class ProdTag {
   final String? spec;
   final String? customerCode;
   final String? inventoryCode;
+  final String? locId;
+  final String? locCode;
 
   factory ProdTag.fromJson(Map<String, dynamic> json) {
     return ProdTag(
@@ -48,6 +52,8 @@ class ProdTag {
       spec: _asString(json['spec']),
       customerCode: _asString(json['customerCode']),
       inventoryCode: _asString(json['inventoryCode']),
+      locId: _asString(json['locId']),
+      locCode: _asString(json['locCode']),
     );
   }
 
@@ -86,6 +92,8 @@ class ProdTag {
       'spec': spec,
       'customerCode': customerCode,
       'inventoryCode': inventoryCode,
+      'locId': locId,
+      'locCode': locCode,
     };
   }
 
@@ -156,13 +164,15 @@ class ProdTagAdapter extends TypeAdapter<ProdTag> {
       spec: fields[10] as String?,
       customerCode: fields[11] as String?,
       inventoryCode: fields[12] as String?,
+      locId: fields[13] as String?,
+      locCode: fields[14] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProdTag obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -188,6 +198,10 @@ class ProdTagAdapter extends TypeAdapter<ProdTag> {
       ..writeByte(11)
       ..write(obj.customerCode)
       ..write(12)
-      ..write(obj.inventoryCode);
+      ..write(obj.inventoryCode)
+        ..writeByte(13)
+      ..write(obj.locId)
+      ..writeByte(14)
+      ..write(obj.locCode);
   }
 }

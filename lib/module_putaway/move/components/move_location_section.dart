@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/module_putaway/base/components/base_putaway_location_section.dart';
-import 'package:hz_xg_pda/module_putaway/inbound/state/inbound_state.dart';
+import 'package:hz_xg_pda/module_putaway/move/state/move_state.dart';
 
-class InboundLocationSection extends StatelessWidget {
-  const InboundLocationSection({super.key});
+class MoveLocationSection extends StatelessWidget {
+  const MoveLocationSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final state = InboundScope.watch(context);
+    final state = MoveScope.watch(context);
 
     return BasePutawayLocationSection(
-      accentColor: const Color(0xFF18A8F1),
+      accentColor: const Color(0xFF00B894),
       selectedLocation: state.selectedLocation,
       locationOptions: state.locationOptions,
       onChanged: state.updateLocation,

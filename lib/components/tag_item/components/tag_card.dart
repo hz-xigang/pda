@@ -5,15 +5,15 @@ class TagCard extends StatelessWidget {
   const TagCard({
     super.key,
     required this.tag,
-    required this.spec,
     required this.isSelected,
     required this.onTap,
+    required this.themeColor,
   });
 
   final ProdTag tag;
-  final String spec;
   final bool isSelected;
   final VoidCallback onTap;
+  final Color themeColor;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class TagCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 160),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFFF1F2) : Colors.white,
+          color: isSelected ? themeColor.withValues(alpha: 0.10) : Colors.white,
           borderRadius: const BorderRadius.only(
             topRight: Radius.circular(22),
             bottomRight: Radius.circular(22),
@@ -38,9 +38,7 @@ class TagCard extends StatelessWidget {
           ],
           border: Border(
             left: BorderSide(
-              color: isSelected
-                  ? const Color(0xFFE54B4B)
-                  : const Color(0xFF0C45EC),
+              color: isSelected ? themeColor : themeColor,
               width: 5,
             ),
           ),
@@ -58,9 +56,7 @@ class TagCard extends StatelessWidget {
                     tag.tagNo ?? '--',
                     style: TextStyle(
                       fontSize: 15,
-                      color: isSelected
-                          ? const Color(0xFFB42318)
-                          : const Color(0xFF0F274D),
+                      color: isSelected ? themeColor : const Color(0xFF0F274D),
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -69,9 +65,7 @@ class TagCard extends StatelessWidget {
                   isSelected
                       ? Icons.check_circle_rounded
                       : Icons.radio_button_unchecked_rounded,
-                  color: isSelected
-                      ? const Color(0xFFE54B4B)
-                      : const Color(0xFF9AA3B8),
+                  color: isSelected ? themeColor : const Color(0xFF9AA3B8),
                   size: 22,
                 ),
               ],
@@ -81,24 +75,28 @@ class TagCard extends StatelessWidget {
               label: '产品名称',
               value: tag.productCategory ?? '--',
               isSelected: isSelected,
+              themeColor: themeColor,
             ),
             const SizedBox(height: 6),
             _InfoRow(
               label: '规格',
-              value: spec,
+              value: tag.spec ?? '--',
               isSelected: isSelected,
+              themeColor: themeColor,
             ),
             const SizedBox(height: 6),
             _InfoRow(
               label: '存货编码',
               value: tag.prodNo ?? '--',
               isSelected: isSelected,
+              themeColor: themeColor,
             ),
             const SizedBox(height: 6),
             _InfoRow(
               label: '数量',
               value: (tag.qty ?? 0).toString(),
               isSelected: isSelected,
+              themeColor: themeColor,
             ),
           ],
         ),
@@ -112,11 +110,13 @@ class _InfoRow extends StatelessWidget {
     required this.label,
     required this.value,
     required this.isSelected,
+    required this.themeColor,
   });
 
   final String label;
   final String value;
   final bool isSelected;
+  final Color themeColor;
 
   @override
   Widget build(BuildContext context) {
@@ -127,9 +127,7 @@ class _InfoRow extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 14,
-            color: isSelected
-                ? const Color(0xFFB42318)
-                : const Color(0xFF6B7280),
+            color: isSelected ? themeColor : const Color(0xFF6B7280),
             fontWeight: FontWeight.w500,
           ),
         ),

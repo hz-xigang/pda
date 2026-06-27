@@ -32,6 +32,7 @@ class HomePage extends StatelessWidget {
       accentColor: Color(0xFF00B894),
       iconBackground: Color(0xFFE3FBF5),
       icon: Icons.swap_horiz_rounded,
+      routeName: AppRoutes.putawayMove,
     ),
     _WorkCardData(
       title: '单据操作',
