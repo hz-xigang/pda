@@ -6,13 +6,13 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   static const List<_WorkCardData> _cards = [
-    _WorkCardData(
+   /* _WorkCardData(
       title: '纸箱标签打印',
       accentColor: Color(0xFF2E61F3),
       iconBackground: Color(0xFFE7EEFF),
       icon: Icons.sell_outlined,
       routeName: AppRoutes.cartonLabelPrint,
-    ),
+    ),*/
     _WorkCardData(
       title: '打托作业',
       accentColor: Color(0xFF8B3DFF),
@@ -33,6 +33,12 @@ class HomePage extends StatelessWidget {
       iconBackground: Color(0xFFE3FBF5),
       icon: Icons.swap_horiz_rounded,
       routeName: AppRoutes.putawayMove,
+    ),
+    _WorkCardData(
+      title: '盘点扫描',
+      accentColor: Color(0xFFFFA000),
+      iconBackground: Color(0xFFFFF4DB),
+      icon: Icons.manage_search_rounded,
     ),
     _WorkCardData(
       title: '单据操作',

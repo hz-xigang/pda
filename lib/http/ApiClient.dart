@@ -15,7 +15,7 @@ class ApiClient {
   factory ApiClient() => instance;
 
   static final String baseUrl = kDebugMode
-      ? 'http://192.168.1.92:7100/'
+      ? 'http://192.168.1.100:7100/'
       : 'http://175.178.92.52/';
 
   late final Dio _dio = Dio(
@@ -95,6 +95,7 @@ class ApiClient {
       onError?.call(exception);
       FeedbackUtil.showError(e.message ?? '网络请求失败');
       print(e);
+      print(url);
       throw exception;
     } on FormatException catch (e) {
       final exception = ApiException(

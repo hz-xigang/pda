@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
+import 'package:hz_xg_pda/http/StockMoveApi.dart';
 import 'package:hz_xg_pda/module_putaway/base/base_putaway_state.dart';
 import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
@@ -39,7 +40,13 @@ class MoveState extends BasePutawayState {
       return;
     }
 
+    final List<String> tagNos = scannedTags.map((it) => '${it.tagNo}').toList();
+    final locId = selectedLocation?.id;
     FeedbackUtil.showLoading('移库中...');
+    await StockMoveApi.add({
+      'locId': locId,
+      'tagNos': tagNos,
+    });
     FeedbackUtil.showSuccess('移库成功');
     scannedTags = <ProdTag>[];
     await clearCachedTags();

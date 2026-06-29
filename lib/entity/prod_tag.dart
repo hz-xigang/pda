@@ -197,7 +197,7 @@ class ProdTagAdapter extends TypeAdapter<ProdTag> {
       ..write(obj.spec)
       ..writeByte(11)
       ..write(obj.customerCode)
-      ..write(12)
+      ..writeByte(12)
       ..write(obj.inventoryCode)
         ..writeByte(13)
       ..write(obj.locId)

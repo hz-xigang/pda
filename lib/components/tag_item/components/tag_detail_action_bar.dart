@@ -5,10 +5,12 @@ class TagDetailActionBar extends StatelessWidget {
     super.key,
     required this.onDeleteSelected,
     required this.onDeleteAll,
+    required this.themeColor,
   });
 
   final VoidCallback onDeleteSelected;
   final VoidCallback onDeleteAll;
+  final Color themeColor;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class TagDetailActionBar extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 foregroundColor: Colors.white,
-                backgroundColor: const Color(0xFFE54B4B),
+                backgroundColor: themeColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),
@@ -55,7 +57,7 @@ class TagDetailActionBar extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 foregroundColor: Colors.white,
-                backgroundColor: const Color(0xFFE54B4B),
+                backgroundColor: themeColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),

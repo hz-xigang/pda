@@ -17,6 +17,7 @@ class TagDetailPage extends StatefulWidget {
     required this.onDeleteSelected,
     required this.onDeleteAll,
     required this.themeColor,
+    required this.refreshListenable,
   });
 
   final PalletProductItem productItem;
@@ -24,6 +25,7 @@ class TagDetailPage extends StatefulWidget {
   final Future<void> Function(List<ProdTag> selectedTags) onDeleteSelected;
   final Future<void> Function(String prodNo) onDeleteAll;
   final Color themeColor;
+  final Listenable refreshListenable;
 
   @override
   State<TagDetailPage> createState() => _TagDetailPageState();
@@ -83,8 +85,6 @@ class _TagDetailPageState extends State<TagDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final currentTags = _currentTags();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF3F6FB),
       body: SafeArea(
@@ -92,25 +92,33 @@ class _TagDetailPageState extends State<TagDetailPage> {
           notifier: _detailState,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppBackBar(onTap: () => Navigator.pop(context)),
-                const SizedBox(height: 16),
-                TagDetailHeader(themeColor: widget.themeColor),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: TagDetailList(
-                    tags: currentTags,
-                    themeColor: widget.themeColor,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TagDetailActionBar(
-                  onDeleteSelected: _deleteSelected,
-                  onDeleteAll: _deleteAll,
-                ),
-              ],
+            child: AnimatedBuilder(
+              animation: widget.refreshListenable,
+              builder: (context, child) {
+                final currentTags = _currentTags();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBackBar(onTap: () => Navigator.pop(context)),
+                    const SizedBox(height: 16),
+                    TagDetailHeader(themeColor: widget.themeColor),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: TagDetailList(
+                        tags: currentTags,
+                        themeColor: widget.themeColor,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TagDetailActionBar(
+                      onDeleteSelected: _deleteSelected,
+                      onDeleteAll: _deleteAll,
+                      themeColor: widget.themeColor,
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),

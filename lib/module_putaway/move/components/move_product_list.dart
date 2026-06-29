@@ -34,6 +34,7 @@ class MoveProductList extends StatelessWidget {
                 onDeleteSelected: moveState.removeTags,
                 onDeleteAll: moveState.removeProductGroup,
                 themeColor: const Color(0xFF00B894),
+                refreshListenable: moveState,
               ),
             ),
           ),

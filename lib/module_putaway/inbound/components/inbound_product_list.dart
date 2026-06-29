@@ -34,6 +34,7 @@ class InboundProductList extends StatelessWidget {
                 onDeleteSelected: inboundState.removeTags,
                 onDeleteAll: inboundState.removeProductGroup,
                 themeColor: const Color(0xFF18A8F1),
+                refreshListenable: inboundState,
               ),
             ),
           ),
