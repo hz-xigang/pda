@@ -1,9 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/app_routes.dart';
 import 'package:hz_xg_pda/components/app_bottom_nav_bar.dart';
+import 'package:hz_xg_pda/entity/login_user.dart';
+import 'package:hz_xg_pda/provider/TokenProvider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  LoginUser? _loginUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLoginUser();
+  }
+
+  Future<void> _loadLoginUser() async {
+    final loginUser = await TokenProvider.getLoginUser();
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _loginUser = loginUser;
+    });
+  }
 
   static const List<_WorkCardData> _cards = [
    /* _WorkCardData(
@@ -45,6 +71,7 @@ class HomePage extends StatelessWidget {
       accentColor: Color(0xFF0D8DBA),
       iconBackground: Color(0xFFE6F8FF),
       icon: Icons.receipt_long_outlined,
+      routeName: AppRoutes.documentOperation,
     ),
     _WorkCardData(
       title: '退货入库',
@@ -57,6 +84,9 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final displayName = _loginUser?.username.trim().isNotEmpty == true
+        ? _loginUser!.username.trim()
+        : '操作员';
 
     return Scaffold(
       body: SafeArea(
@@ -93,8 +123,8 @@ class HomePage extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.22),
                       ),
                     ),
-                    child: const Text(
-                      '张工',
+                    child: Text(
+                      displayName,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 15,

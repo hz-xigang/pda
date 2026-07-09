@@ -4,9 +4,11 @@ class SectionTitle extends StatelessWidget {
   const SectionTitle({
     super.key,
     required this.title,
+    this.color = const Color(0xFF2E61F3),
   });
 
   final String title;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +17,8 @@ class SectionTitle extends StatelessWidget {
         Container(
           width: 9,
           height: 9,
-          decoration: const BoxDecoration(
-            color: Color(0xFF2E61F3),
+          decoration: BoxDecoration(
+            color: color,
             shape: BoxShape.circle,
           ),
         ),

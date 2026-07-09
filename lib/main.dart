@@ -8,10 +8,12 @@ import 'package:hz_xg_pda/entity/prod_tag.dart';
 import 'package:hz_xg_pda/entity/production_order.dart';
 import 'package:hz_xg_pda/module_carton/list/list_index.dart';
 import 'package:hz_xg_pda/module_carton/print/index.dart';
+import 'package:hz_xg_pda/module_document_operation/index.dart';
 import 'package:hz_xg_pda/module_pallet/print/index.dart';
 import 'package:hz_xg_pda/module_putaway/inbound/index.dart';
 import 'package:hz_xg_pda/module_putaway/move/index.dart';
 import 'package:hz_xg_pda/page/home_page.dart';
+import 'package:hz_xg_pda/page/login_page.dart';
 import 'package:hz_xg_pda/page/mine_page.dart';
 
 Future<void> main() async {
@@ -50,8 +52,9 @@ class WarehouseApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: AppRoutes.home,
+      initialRoute: AppRoutes.login,
       routes: {
+        AppRoutes.login: (context) => const LoginPage(),
         AppRoutes.home: (context) => const HomePage(),
         AppRoutes.mine: (context) => const MinePage(),
         AppRoutes.cartonLabelPrint: (context) => CartonLabelPrintPage(),
@@ -59,6 +62,7 @@ class WarehouseApp extends StatelessWidget {
         AppRoutes.palletOperation: (context) => const PalletOperationPage(),
         AppRoutes.palletInbound: (context) => const InboundPage(),
         AppRoutes.putawayMove: (context) => const MovePage(),
+        AppRoutes.documentOperation: (context) => const DocumentOperationPage(),
       },
       builder: EasyLoading.init(),
     );
