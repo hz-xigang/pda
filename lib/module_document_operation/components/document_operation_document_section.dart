@@ -3,6 +3,8 @@ import 'package:hz_xg_pda/components/section_title.dart';
 import 'package:hz_xg_pda/module_document_operation/document_operation_theme.dart';
 import 'package:hz_xg_pda/module_document_operation/state/document_operation_state.dart';
 
+import '../../entity/DocumentOperationDocumentOption.dart';
+
 class DocumentOperationDocumentSection extends StatelessWidget {
   const DocumentOperationDocumentSection({super.key});
 
@@ -11,6 +13,7 @@ class DocumentOperationDocumentSection extends StatelessWidget {
     final state = DocumentOperationScope.watch(context);
     final selected = state.selectedDocument;
     final label = _buildLabel(state.selectedOrderType.key);
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,11 +55,13 @@ class DocumentOperationDocumentSection extends StatelessWidget {
                     .map(
                       (item) => DropdownMenuItem<DocumentOperationDocumentOption>(
                         value: item,
-                        child: Text(item.label),
+                        child: Text(item.no),
                       ),
                     )
                     .toList(growable: false),
-                onChanged: state.updateDocument,
+                onChanged: state.canSwitchSelectors
+                    ? state.updateDocument
+                    : null,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
@@ -80,38 +85,13 @@ class DocumentOperationDocumentSection extends StatelessWidget {
               ),
               if (selected != null) ...[
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        selected.summaryName,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF4B5563),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: documentOperationLightColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${selected.summarySpec} | 数量 ${selected.summaryQty} 件',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF111827),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
+                const Text(
+                  '单号明细',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF4B5563),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ],

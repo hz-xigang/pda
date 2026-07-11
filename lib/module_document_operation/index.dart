@@ -6,6 +6,9 @@ import 'package:hz_xg_pda/module_document_operation/components/document_operatio
 import 'package:hz_xg_pda/module_document_operation/components/document_operation_product_list.dart';
 import 'package:hz_xg_pda/module_document_operation/components/document_operation_total_count.dart';
 import 'package:hz_xg_pda/module_document_operation/state/document_operation_state.dart';
+import 'package:hz_xg_pda/util/PdaUtil.dart';
+
+import 'dart:async';
 
 class DocumentOperationPage extends StatefulWidget {
   const DocumentOperationPage({super.key});
@@ -16,15 +19,20 @@ class DocumentOperationPage extends StatefulWidget {
 
 class _DocumentOperationPageState extends State<DocumentOperationPage> {
   late final DocumentOperationState _state;
+  StreamSubscription<String>? _scanSubscription;
 
   @override
   void initState() {
     super.initState();
     _state = DocumentOperationState();
+    _scanSubscription = PdaUtil().onScanResult.listen((result) {
+      _state.onScanProduct(result, context);
+    });
   }
 
   @override
   void dispose() {
+    _scanSubscription?.cancel();
     _state.dispose();
     super.dispose();
   }

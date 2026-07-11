@@ -5,6 +5,7 @@ enum ProgTagCacheKey {
   pallet,
   inbound,
   move,
+  documentOperation,
 }
 
 class ProgTagCacheProvider {

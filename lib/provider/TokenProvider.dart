@@ -40,6 +40,11 @@ class TokenProvider {
     await box.put(loginUserKey, loginUser);
   }
 
+  static Future<void> clearLoginUser() async {
+    final box = await _getBox();
+    await box.delete(loginUserKey);
+  }
+
   static Future<String> getToken() async {
     final LoginUser? loginUser = await getLoginUser();
     return loginUser?.token.trim() ?? '';

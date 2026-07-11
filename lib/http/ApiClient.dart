@@ -41,6 +41,7 @@ class ApiClient {
   }) async {
     try {
       // final Map<String, dynamic> tokenHeaders = await TokenProvider.buildTokenHeaders();
+      final loginUser = await TokenProvider.getLoginUser();
 
       final response = await _dio.request<dynamic>(
         url,
@@ -50,6 +51,9 @@ class ApiClient {
           method: method,
           headers: {
             // ...tokenHeaders,
+            "Authorization" :   "Bearer ${loginUser?.token.trim().isNotEmpty == true
+                ? loginUser!.token.trim()
+                : ''}",
             ...?options?.headers,
           },
         ),

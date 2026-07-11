@@ -8,24 +8,28 @@ class LoginUser {
     this.pwd = '',
     this.rememberMe = false,
     this.token = '',
+    this.realName = ''
   });
 
   final String username;
   final String pwd;
   final bool rememberMe;
   final String token;
+  final String realName;
 
   LoginUser copyWith({
     String? username,
     String? pwd,
     bool? rememberMe,
     String? token,
+    String? realName
   }) {
     return LoginUser(
       username: username ?? this.username,
       pwd: pwd ?? this.pwd,
       rememberMe: rememberMe ?? this.rememberMe,
       token: token ?? this.token,
+      realName : realName ?? this.realName,
     );
   }
 
@@ -35,6 +39,7 @@ class LoginUser {
       pwd: _asString(json['pwd']) ?? '',
       rememberMe: _asBool(json['rememberMe']) ?? false,
       token: _asString(json['token']) ?? '',
+      realName: _asString(json['realName']) ?? '',
     );
   }
 
@@ -54,6 +59,7 @@ class LoginUser {
       'pwd': pwd,
       'rememberMe': rememberMe,
       'token': token,
+      'realName' : realName,
     };
   }
 
@@ -105,6 +111,7 @@ class LoginUserAdapter extends TypeAdapter<LoginUser> {
       pwd: fields[1] as String? ?? '',
       rememberMe: fields[2] as bool? ?? false,
       token: fields[3] as String? ?? '',
+      realName: fields[4] as String? ?? '',
     );
   }
 
@@ -119,6 +126,8 @@ class LoginUserAdapter extends TypeAdapter<LoginUser> {
       ..writeByte(2)
       ..write(obj.rememberMe)
       ..writeByte(3)
-      ..write(obj.token);
+      ..write(obj.token)
+        ..writeByte(4)
+      ..write(obj.realName);
   }
 }

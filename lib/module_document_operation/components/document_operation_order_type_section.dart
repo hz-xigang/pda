@@ -55,7 +55,9 @@ class DocumentOperationOrderTypeSection extends StatelessWidget {
                       ),
                     )
                     .toList(growable: false),
-                onChanged: state.updateOrderType,
+                onChanged: state.canSwitchSelectors
+                    ? state.updateOrderType
+                    : null,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,

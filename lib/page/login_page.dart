@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hz_xg_pda/app_routes.dart';
 import 'package:hz_xg_pda/entity/login_user.dart';
+import 'package:hz_xg_pda/http/UserApi.dart';
 import 'package:hz_xg_pda/provider/TokenProvider.dart';
+import 'package:hz_xg_pda/util/JwtUtil.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -55,11 +59,22 @@ class _LoginPageState extends State<LoginPage> {
       _isSubmitting = true;
     });
 
-    await TokenProvider.saveLoginUser(
+    try{
+      var token =  await UserApi.login({
+        "username" : username,
+        "pwd" : password,
+      });
+
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+
+
+      await TokenProvider.saveLoginUser(
       LoginUser(
         username: username,
         pwd: password,
         rememberMe: true,
+        realName: decodedToken['realName'],
+        token: token,
       ),
     );
 
@@ -71,7 +86,16 @@ class _LoginPageState extends State<LoginPage> {
       _isSubmitting = false;
     });
 
+    EasyLoading.showSuccess("登录成功");
+
     Navigator.pushReplacementNamed(context, AppRoutes.home);
+    }catch(e){
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
+
+
   }
 
   @override
@@ -162,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                         controller: _passwordController,
                         obscureText: true,
                         textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => _isSubmitting ? null : _submit(),
+                        //onSubmitted: (_) => _isSubmitting ? null : _submit(),
                         decoration: InputDecoration(
                           labelText: '密码',
                           prefixIcon: const Icon(Icons.lock_outline_rounded),

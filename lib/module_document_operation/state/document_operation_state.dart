@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/entity/pallet_product_item.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
+import 'package:hz_xg_pda/http/StockOrderApi.dart';
+import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
+import 'package:hz_xg_pda/state/base_prod_tag_scan_state.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
+
+import '../../entity/DocumentOperationDocumentOption.dart';
 
 class DocumentOperationTypeOption {
   const DocumentOperationTypeOption({
@@ -14,25 +19,9 @@ class DocumentOperationTypeOption {
   final String label;
 }
 
-class DocumentOperationDocumentOption {
-  const DocumentOperationDocumentOption({
-    required this.key,
-    required this.label,
-    required this.summaryName,
-    required this.summarySpec,
-    required this.summaryQty,
-    required this.products,
-  });
 
-  final String key;
-  final String label;
-  final String summaryName;
-  final String summarySpec;
-  final int summaryQty;
-  final List<PalletProductItem> products;
-}
 
-class DocumentOperationState extends ChangeNotifier {
+class DocumentOperationState extends BaseProdTagScanState {
   static const List<DocumentOperationTypeOption> orderTypes =
       <DocumentOperationTypeOption>[
     DocumentOperationTypeOption(
@@ -51,36 +40,90 @@ class DocumentOperationState extends ChangeNotifier {
 
   DocumentOperationTypeOption _selectedOrderType = orderTypes.first;
   DocumentOperationDocumentOption? _selectedDocument;
+  var _transferList = <DocumentOperationDocumentOption>[];
+  var _prepList = <DocumentOperationDocumentOption>[];
+  var _shipList = <DocumentOperationDocumentOption>[];
 
-  DocumentOperationState() {
-    final options = _documentsByType(_selectedOrderType.key);
-    _selectedDocument = options.isEmpty ? null : options.first;
+  DocumentOperationState({
+    List<ProdTag>? initialScannedTags,
+    bool useCache = true,
+  }) : super(
+          initialScannedTags: initialScannedTags,
+          useCache: useCache,
+        ) {
+    _syncSelectedDocument(_documentsByType(_selectedOrderType.key));
+    if (this.useCache) {
+      loadCachedTags();
+    }
+    initOrderList();
+  }
+
+  @override
+  ProgTagCacheKey get cacheKey => ProgTagCacheKey.documentOperation;
+
+  @override
+  int get tagFlag {
+    switch (_selectedOrderType.key) {
+      case 'stock_prepare':
+        return 4;
+      case 'delivery_out':
+        return 5;
+      case 'transfer_out':
+      default:
+        return 6;
+    }
   }
 
   DocumentOperationTypeOption get selectedOrderType => _selectedOrderType;
   DocumentOperationDocumentOption? get selectedDocument => _selectedDocument;
   List<DocumentOperationDocumentOption> get documentOptions =>
       _documentsByType(_selectedOrderType.key);
-  List<PalletProductItem> get products => _selectedDocument?.products ?? const [];
+  bool get canSwitchSelectors => scannedTags.isEmpty;
+
+  List<PalletProductItem> get products {
+    final Map<String, List<ProdTag>> groups = <String, List<ProdTag>>{};
+    for (final ProdTag tag in scannedTags) {
+      final String poId = tag.prodOrderId ?? 'unknown_po';
+      groups.putIfAbsent(poId, () => <ProdTag>[]).add(tag);
+    }
+
+    return groups.entries.map((entry) {
+      final List<ProdTag> tags = entry.value;
+      final ProdTag firstTag = tags.first;
+      final int totalQty = tags.fold<int>(
+        0,
+        (sum, tag) => sum + (tag.qty ?? 0).toInt(),
+      );
+
+      return PalletProductItem(
+        prodOrderId: entry.key,
+        name: firstTag.productCategory ?? '--',
+        prodNo: firstTag.prodNo ?? '--',
+        spec: '${firstTag.spec ?? '--'} | ${firstTag.inventoryCode ?? '--'}',
+        count: totalQty,
+        tags: tags,
+      );
+    }).toList(growable: false);
+  }
 
   int get totalCount => products.fold<int>(
         0,
         (sum, item) => sum + item.count,
       );
 
-  void updateOrderType(DocumentOperationTypeOption? value) {
-    if (value == null) {
+  Future<void> updateOrderType(DocumentOperationTypeOption? value) async {
+    if (value == null || !canSwitchSelectors) {
       return;
     }
 
     _selectedOrderType = value;
-    final options = _documentsByType(value.key);
-    _selectedDocument = options.isEmpty ? null : options.first;
+    _syncSelectedDocument(_documentsByType(value.key));
     notifyListeners();
+    await initOrderList();
   }
 
   void updateDocument(DocumentOperationDocumentOption? value) {
-    if (value == null || value.key == _selectedDocument?.key) {
+    if (value == null || !canSwitchSelectors || value.id == _selectedDocument?.id) {
       return;
     }
 
@@ -94,141 +137,113 @@ class DocumentOperationState extends ChangeNotifier {
       return;
     }
 
-    if (products.isEmpty) {
+    if (scannedTags.isEmpty) {
       FeedbackUtil.showInfo('暂无可操作数据');
       return;
     }
 
     final bool confirm = await DialogUtil.showConfirmDialog(
       context,
-      content: '确认执行${_selectedOrderType.label} ${_selectedDocument!.label}吗？',
+      content: '确认执行${_selectedOrderType.label} ${_selectedDocument!.no}吗？',
     );
     if (!confirm) {
       return;
     }
 
+    var req = {
+
+    };
+
     FeedbackUtil.showLoading('提交中...');
     await Future<void>.delayed(const Duration(milliseconds: 500));
     FeedbackUtil.showSuccess('操作成功');
+    scannedTags = <ProdTag>[];
+    await clearCachedTags();
+    notifyListeners();
   }
 
-  static List<DocumentOperationDocumentOption> _documentsByType(String key) {
+
+  Future<void> initOrderList() async {
+    switch (_selectedOrderType.key) {
+      case 'stock_prepare':
+        _prepList = await StockOrderApi.prepList();
+        _syncSelectedDocument(_prepList);
+        break;
+      case 'delivery_out':
+        _shipList = await StockOrderApi.shipList();
+        _syncSelectedDocument(_shipList);
+        break;
+      case 'transfer_out':
+      default:
+        _transferList = await StockOrderApi.transferList();
+        _syncSelectedDocument(_transferList);
+        break;
+    }
+    notifyListeners();
+  }
+
+  List<DocumentOperationDocumentOption> _documentsByType(String key) {
     switch (key) {
       case 'stock_prepare':
-        return const <DocumentOperationDocumentOption>[
-          DocumentOperationDocumentOption(
-            key: 'BH-001',
-            label: 'BH-001',
-            summaryName: '铝合金外壳',
-            summarySpec: 'AL-CASE-08',
-            summaryQty: 18,
-            products: <PalletProductItem>[
-              PalletProductItem(
-                prodOrderId: 'PO-20260429003',
-                name: '铝合金外壳',
-                prodNo: 'SC20260429003',
-                spec: 'AL-CASE-08 | INV-20240102',
-                count: 18,
-                tags: <ProdTag>[],
-              ),
-            ],
-          ),
-          DocumentOperationDocumentOption(
-            key: 'BH-002',
-            label: 'BH-002',
-            summaryName: '密封圈',
-            summarySpec: 'OR-35x3.5-NBR',
-            summaryQty: 12,
-            products: <PalletProductItem>[
-              PalletProductItem(
-                prodOrderId: 'PO-20260429005',
-                name: '密封圈',
-                prodNo: 'SC20260429005',
-                spec: 'OR-35x3.5-NBR | INV-20240033',
-                count: 12,
-                tags: <ProdTag>[],
-              ),
-            ],
-          ),
-        ];
+        return _prepList.isEmpty ? _defaultPrepDocuments : _prepList;
       case 'delivery_out':
-        return const <DocumentOperationDocumentOption>[
-          DocumentOperationDocumentOption(
-            key: 'FH-001',
-            label: 'FH-001',
-            summaryName: '不锈钢垫片',
-            summarySpec: 'SS-WASHER-20',
-            summaryQty: 42,
-            products: <PalletProductItem>[
-              PalletProductItem(
-                prodOrderId: 'PO-20260429007',
-                name: '不锈钢垫片',
-                prodNo: 'SC20260429007',
-                spec: 'SS-WASHER-20 | INV-20240128',
-                count: 42,
-                tags: <ProdTag>[],
-              ),
-            ],
-          ),
-          DocumentOperationDocumentOption(
-            key: 'FH-002',
-            label: 'FH-002',
-            summaryName: '精密齿轮',
-            summarySpec: 'GEAR-48T',
-            summaryQty: 16,
-            products: <PalletProductItem>[
-              PalletProductItem(
-                prodOrderId: 'PO-20260429008',
-                name: '精密齿轮',
-                prodNo: 'SC20260429008',
-                spec: 'GEAR-48T | INV-20240156',
-                count: 16,
-                tags: <ProdTag>[],
-              ),
-            ],
-          ),
-        ];
+        return _shipList.isEmpty ? _defaultShipDocuments : _shipList;
       case 'transfer_out':
+        return _transferList.isEmpty ? _defaultDocuments : _transferList;
       default:
         return _defaultDocuments;
     }
   }
 
+  void _syncSelectedDocument(List<DocumentOperationDocumentOption> options) {
+    if (options.isEmpty) {
+      _selectedDocument = null;
+      return;
+    }
+
+    final currentId = _selectedDocument?.id;
+    if (currentId == null) {
+      _selectedDocument = options.first;
+      return;
+    }
+
+    final matched = options.where((item) => item.id == currentId);
+    _selectedDocument = matched.isEmpty ? options.first : matched.first;
+  }
+
   static const List<DocumentOperationDocumentOption> _defaultDocuments =
       <DocumentOperationDocumentOption>[
         DocumentOperationDocumentOption(
-          key: 'DB-001',
-          label: 'DB-001',
-          summaryName: '精密轴承组件',
-          summarySpec: 'BRG-6205-2RS',
-          summaryQty: 30,
-          products: <PalletProductItem>[
-            PalletProductItem(
-              prodOrderId: 'PO-20260429001',
-              name: '精密轴承组件',
-              prodNo: 'SC20260429001',
-              spec: 'BRG-6205-2RS | INV-20240056',
-              count: 30,
-              tags: <ProdTag>[],
-            ),
-          ],
+          id: '5',
+          no: 'DB-001',
         ),
         DocumentOperationDocumentOption(
-          key: 'DB-002',
-          label: 'DB-002',
-          summaryName: '减速电机',
-          summarySpec: 'GM-12V-100RPM',
-          summaryQty: 25,
-          products: <PalletProductItem>[
-            PalletProductItem(
-              prodOrderId: 'PO-20260429004',
-              name: '减速电机',
-              prodNo: 'SC20260429004',
-              spec: 'GM-12V-100RPM | INV-20240011',
-              count: 25,
-              tags: <ProdTag>[],
-            ),
-          ],
+          id: '6',
+          no: 'DB-002',
+        ),
+      ];
+
+  static const List<DocumentOperationDocumentOption> _defaultPrepDocuments =
+      <DocumentOperationDocumentOption>[
+        DocumentOperationDocumentOption(
+          id: '1',
+          no: 'BH-001',
+        ),
+        DocumentOperationDocumentOption(
+          id: '2',
+          no: 'BH-002',
+        ),
+      ];
+
+  static const List<DocumentOperationDocumentOption> _defaultShipDocuments =
+      <DocumentOperationDocumentOption>[
+        DocumentOperationDocumentOption(
+          id: '3',
+          no: 'FH-001',
+        ),
+        DocumentOperationDocumentOption(
+          id: '4',
+          no: 'FH-002',
         ),
       ];
 }

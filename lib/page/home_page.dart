@@ -4,6 +4,8 @@ import 'package:hz_xg_pda/components/app_bottom_nav_bar.dart';
 import 'package:hz_xg_pda/entity/login_user.dart';
 import 'package:hz_xg_pda/provider/TokenProvider.dart';
 
+import '../const/index.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -13,6 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   LoginUser? _loginUser;
+  DateTime? _lastBackPressedAt;
 
   @override
   void initState() {
@@ -29,6 +32,63 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _loginUser = loginUser;
     });
+  }
+
+  Future<void> _handleLogout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('提示',style: ALERT_DIALOG_TITLE_STYLE,),
+          content: const Text('是否退出登录'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('否'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('是'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout != true || !mounted) {
+      return;
+    }
+
+    //await TokenProvider.clearLoginUser();
+    if (!mounted) {
+      return;
+    }
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.login,
+      (route) => false,
+    );
+  }
+
+  Future<bool> _handleBackPressed() async {
+    final now = DateTime.now();
+    final shouldExit = _lastBackPressedAt != null &&
+        now.difference(_lastBackPressedAt!) <= const Duration(seconds: 2);
+
+    if (shouldExit) {
+      return true;
+    }
+
+    _lastBackPressedAt = now;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('再按一次退出app'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    return false;
   }
 
   static const List<_WorkCardData> _cards = [
@@ -84,84 +144,105 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final navigator = Navigator.of(context);
     final displayName = _loginUser?.username.trim().isNotEmpty == true
-        ? _loginUser!.username.trim()
+        ? _loginUser!.realName.trim()
         : '操作员';
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1E2433),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.factory_outlined,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      '仓储作业',
-                      style: theme.textTheme.headlineSmall,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      color: Colors.white.withValues(alpha: 0.08),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.22),
-                      ),
-                    ),
-                    child: Text(
-                      displayName,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  mainAxisExtent: 118,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) {
+          return;
+        }
+
+        final shouldPop = await _handleBackPressed();
+        if (shouldPop) {
+          navigator.pop();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E2433),
                 ),
-                itemCount: _cards.length,
-                itemBuilder: (context, index) {
-                  return _WorkCard(
-                    data: _cards[index],
-                    onTap: _cards[index].routeName == null
-                        ? null
-                        : () => Navigator.pushNamed(
-                              context,
-                              _cards[index].routeName!,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.factory_outlined,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '仓储作业',
+                        style: theme.textTheme.headlineSmall,
+                      ),
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(22),
+                        onTap: _handleLogout,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                            color: Colors.white.withValues(alpha: 0.08),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.22),
                             ),
-                  );
-                },
+                          ),
+                          child: Text(
+                            displayName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    mainAxisExtent: 118,
+                  ),
+                  itemCount: _cards.length,
+                  itemBuilder: (context, index) {
+                    return _WorkCard(
+                      data: _cards[index],
+                      onTap: _cards[index].routeName == null
+                          ? null
+                          : () => Navigator.pushNamed(
+                                context,
+                                _cards[index].routeName!,
+                              ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
+        bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
       ),
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
     );
   }
 }
