@@ -8,6 +8,7 @@ class AppRoutes {
   static const String cartonLabelList = '/carton-label-list';
   static const String palletOperation = '/pallet-operation';
   static const String palletInbound = '/pallet-inbound';
+  static const String returnInbound = '/return-inbound';
   static const String putawayMove = '/putaway-move';
   static const String documentOperation = '/document-operation';
 }

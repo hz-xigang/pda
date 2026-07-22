@@ -138,6 +138,7 @@ class _HomePageState extends State<HomePage> {
       accentColor: Color(0xFFFF4D5E),
       iconBackground: Color(0xFFFFEDF0),
       icon: Icons.assignment_return_outlined,
+      routeName: AppRoutes.returnInbound,
     ),
   ];
 

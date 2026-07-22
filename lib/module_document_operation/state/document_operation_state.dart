@@ -25,8 +25,8 @@ class DocumentOperationState extends BaseProdTagScanState {
   static const List<DocumentOperationTypeOption> orderTypes =
       <DocumentOperationTypeOption>[
     DocumentOperationTypeOption(
-      key: 'transfer_out',
-      label: '调拨单（出库）',
+      key: 'transfer',
+      label: '调拨单（出/入库）',
     ),
     DocumentOperationTypeOption(
       key: 'stock_prepare',
@@ -68,7 +68,7 @@ class DocumentOperationState extends BaseProdTagScanState {
         return 4;
       case 'delivery_out':
         return 5;
-      case 'transfer_out':
+      case 'transfer':
       default:
         return 6;
     }
@@ -149,17 +149,33 @@ class DocumentOperationState extends BaseProdTagScanState {
     if (!confirm) {
       return;
     }
-
+    FeedbackUtil.showLoading('提交中...');
     var req = {
-
+      "no" : _selectedDocument!.no,
+      "tagNos" : scannedTags.map((tag) => tag.tagNo).toList()
     };
 
-    FeedbackUtil.showLoading('提交中...');
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    FeedbackUtil.showSuccess('操作成功');
-    scannedTags = <ProdTag>[];
-    await clearCachedTags();
-    notifyListeners();
+    if(_selectedOrderType.key == 'delivery_out'){
+       await StockOrderApi.addShip(req);
+       FeedbackUtil.showSuccess('操作成功');
+       scannedTags = <ProdTag>[];
+       await clearCachedTags();
+       notifyListeners();
+    }else if(_selectedOrderType.key == 'transfer'){
+      await StockOrderApi.addTransfer(req);
+      FeedbackUtil.showSuccess('操作成功');
+      scannedTags = <ProdTag>[];
+      await clearCachedTags();
+      notifyListeners();
+    }else{
+      await StockOrderApi.addPrep(req);
+      FeedbackUtil.showSuccess('操作成功');
+      scannedTags = <ProdTag>[];
+      await clearCachedTags();
+      notifyListeners();
+    }
+
+
   }
 
 
@@ -173,7 +189,7 @@ class DocumentOperationState extends BaseProdTagScanState {
         _shipList = await StockOrderApi.shipList();
         _syncSelectedDocument(_shipList);
         break;
-      case 'transfer_out':
+      case 'transfer':
       default:
         _transferList = await StockOrderApi.transferList();
         _syncSelectedDocument(_transferList);
@@ -188,7 +204,7 @@ class DocumentOperationState extends BaseProdTagScanState {
         return _prepList.isEmpty ? _defaultPrepDocuments : _prepList;
       case 'delivery_out':
         return _shipList.isEmpty ? _defaultShipDocuments : _shipList;
-      case 'transfer_out':
+      case 'transfer':
         return _transferList.isEmpty ? _defaultDocuments : _transferList;
       default:
         return _defaultDocuments;

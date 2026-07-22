@@ -1,10 +1,5 @@
-
-
 import '../entity/DocumentOperationDocumentOption.dart';
 import 'ApiClient.dart';
-
-
-
 
 class StockOrderApi {
 
@@ -19,9 +14,7 @@ class StockOrderApi {
       String field,
       ) async {
 
-    final res =
-    await ApiClient.instance.get(_baseUrl(type));
-
+    final res = await ApiClient.instance.get(_baseUrl(type));
     return res.map<DocumentOperationDocumentOption>(
           (e) => DocumentOperationDocumentOption(
         id: e["id"],
@@ -41,6 +34,19 @@ class StockOrderApi {
 
   static Future<List<DocumentOperationDocumentOption>> transferList() =>
       _list("transfer", "orderNo");
+
+
+  static Future<void> addShip(dynamic data) async{
+    await ApiClient.instance.post("/api/ship",data: data);
+  }
+
+  static Future<void> addTransfer(dynamic data) async{
+    await ApiClient.instance.post("/api/transfer",data: data);
+  }
+
+  static Future<void> addPrep(dynamic data) async{
+    await ApiClient.instance.post("/api/prep",data: data);
+  }
 
 
 }

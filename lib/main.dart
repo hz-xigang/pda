@@ -12,6 +12,7 @@ import 'package:hz_xg_pda/module_document_operation/index.dart';
 import 'package:hz_xg_pda/module_pallet/print/index.dart';
 import 'package:hz_xg_pda/module_putaway/inbound/index.dart';
 import 'package:hz_xg_pda/module_putaway/move/index.dart';
+import 'package:hz_xg_pda/module_putaway/return_inbound/index.dart';
 import 'package:hz_xg_pda/page/home_page.dart';
 import 'package:hz_xg_pda/page/login_page.dart';
 import 'package:hz_xg_pda/page/mine_page.dart';
@@ -61,6 +62,7 @@ class WarehouseApp extends StatelessWidget {
         AppRoutes.cartonLabelList: (context) => const CartonLabelListPage(),
         AppRoutes.palletOperation: (context) => const PalletOperationPage(),
         AppRoutes.palletInbound: (context) => const InboundPage(),
+        AppRoutes.returnInbound: (context) => const ReturnInboundPage(),
         AppRoutes.putawayMove: (context) => const MovePage(),
         AppRoutes.documentOperation: (context) => const DocumentOperationPage(),
       },
