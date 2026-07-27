@@ -1,0 +1,39 @@
+{
+  "@@locale": "zh",
+  "hello": "你好",
+
+  "title_info": "打印机详情",
+  "title_ticket": "打印票据",
+  "title_label": "打印标签",
+  "title_file": "打印文件",
+  "title_command": "打印指令",
+  "title_cash": "钱箱控制",
+  "title_lcd": "客显控制",
+  "text_status": "状态",
+  "text_name": "名称",
+  "text_type": "类型",
+  "text_paper": "规格",
+  "text_cash": "钱箱",
+  "text_printer_id": "打印机id",
+
+  "text_ticket_text": "打印文本测试",
+  "text_ticket_texts": "按列打印文本测试",
+  "text_ticket_bar": "打印条码测试",
+  "text_ticket_qr": "打印QR码测试",
+  "text_ticket_logo": "打印图片测试",
+  "text_ticket_line": "打印分割线测试",
+  "text_ticket_all": "完整样张打印测试",
+  "text_ticket_result": "可以获取结果的打印测试",
+
+  "text_label_count": "打印张数",
+  "text_label_test1": "打印简单标签",
+  "text_label_test2": "打印商品标签",
+  "text_label_test3": "打印品牌标签",
+
+  "tip_cmd": "指令透传接口集合，用于已经通过指令构建好打印内容的开发者直接使用的接口，目前提供两种指令集ESC/POS和TSPL指令集",
+  "text_cmd_esc": "ESC/POS指令打印样张",
+  "text_cmd_tspl": "TSPL指令打印样张",
+
+  "text_cash_switch": "测试打开钱箱",
+  "text_cash_status": "获取钱箱状态"
+}

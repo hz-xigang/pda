@@ -1,0 +1,39 @@
+{
+  "@@locale": "en",
+  "hello": "Hello",
+
+  "title_info": "Printer details",
+  "title_ticket": "Print receipt",
+  "title_label": "Print labels",
+  "title_file": "Print documents",
+  "title_command": "Print command",
+  "title_cash": "Cash drawer control",
+  "title_lcd": "Customer display control",
+  "text_status": "State",
+  "text_name": "Name",
+  "text_type": "Type",
+  "text_paper": "Specification",
+  "text_cash": "Cash drawer",
+  "text_printer_id": "printer id",
+
+  "text_ticket_text": "Test text printing",
+  "text_ticket_texts": "Test text in columns printing",
+  "text_ticket_bar": "Test barcode printing",
+  "text_ticket_qr": "Test QR code printing",
+  "text_ticket_logo": "Test image printing",
+  "text_ticket_line": "Test dividing printing",
+  "text_ticket_all": "Complete sample",
+  "text_ticket_result": "Printing with results available",
+
+  "text_label_count": "Number of prints",
+  "text_label_test1": "Print simple labels",
+  "text_label_test2": "Print product labels",
+  "text_label_test3": "Print brand labels",
+
+  "tip_cmd": "A collection of command transparent transmission interfaces for direct use by developers who have constructed printing content through commands. Currently, two command sets are provided: ESC/POS and TSPL command sets.",
+  "text_cmd_esc": "ESC/POS command to print sample",
+  "text_cmd_tspl": "TSPL command print sample",
+
+  "text_cash_switch": "Open cash drawer",
+  "text_cash_status": "Get cash drawer status"
+}

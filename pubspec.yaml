@@ -21,6 +21,8 @@ dependencies:
   audioplayers: ^6.0.0
   vibration: 3.1.3
   jwt_decoder: ^2.0.1
+  sunmi_flutter_plugin_printer:
+    path: plugins/sunmi_flutter_plugin_printer
 
 dev_dependencies:
   flutter_test:
