@@ -11,4 +11,5 @@ class AppRoutes {
   static const String returnInbound = '/return-inbound';
   static const String putawayMove = '/putaway-move';
   static const String documentOperation = '/document-operation';
+  static const String sunmiPrinterTest = '/sunmi-printer-test';
 }
