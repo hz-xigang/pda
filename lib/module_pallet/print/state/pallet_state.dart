@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:hz_xg_pda/entity/pallet_product_item.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
 import 'package:hz_xg_pda/http/PalletApi.dart';
 import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
 import 'package:hz_xg_pda/state/base_prod_tag_scan_state.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
+import 'package:hz_xg_pda/util/sunmi_printer_util.dart';
 
 class PalletState extends BaseProdTagScanState {
-  PalletState({
-    List<ProdTag>? initialScannedTags,
-    bool useCache = true,
-  }) : super(
-          initialScannedTags: initialScannedTags,
-          useCache: useCache,
-        ) {
-    if (this.useCache) {
-      loadCachedTags();
-    }
+  PalletState() {
+    loadCachedTags();
   }
 
   @override
@@ -25,36 +18,6 @@ class PalletState extends BaseProdTagScanState {
 
   @override
   int get tagFlag => 1;
-
-  List<PalletProductItem> get products {
-    final Map<String, List<ProdTag>> groups = <String, List<ProdTag>>{};
-    for (final ProdTag tag in scannedTags) {
-      final String poId = tag.prodOrderId ?? 'unknown_po';
-      groups.putIfAbsent(poId, () => <ProdTag>[]).add(tag);
-    }
-
-    return groups.entries.map((entry) {
-      final List<ProdTag> tags = entry.value;
-      final ProdTag firstTag = tags.first;
-      final double totalQty = tags.fold<double>(
-        0.0,
-        (sum, tag) => sum + (tag.qty ?? 0.0),
-      );
-
-      return PalletProductItem(
-        prodOrderId: entry.key,
-        name: firstTag.productCategory ?? '未知分类',
-        prodNo: firstTag.prodNo ?? '未知单号',
-        spec: '${firstTag.spec ?? '--'} | ${firstTag.inventoryCode ?? '--'}',
-        count: totalQty.toInt(),
-        tags: tags,
-      );
-    }).toList();
-  }
-
-  int get totalCount => scannedTags
-      .fold<double>(0.0, (sum, tag) => sum + (tag.qty ?? 0.0))
-      .toInt();
 
   int get currentStep => scannedTags.isEmpty ? 1 : 2;
 
@@ -74,8 +37,44 @@ class PalletState extends BaseProdTagScanState {
 
     final List<String> tagNos = scannedTags.map((it) => '${it.tagNo}').toList();
     FeedbackUtil.showLoading('上传中...');
-    await PalletApi.add(tagNos);
-    FeedbackUtil.showSuccess('上传成功');
+    var res = await PalletApi.add(tagNos);
+    print("res@@  $res");
+
+    // res 是需要打印的二维码内容
+    FeedbackUtil.dismiss();
+
+    // 打印托盘二维码
+    if (res != null && res.toString().isNotEmpty) {
+      try {
+        // 确保打印机已初始化
+        if (!SunmiPrinterUtil.isReady) {
+          FeedbackUtil.showLoading('初始化打印机...');
+          final initialized = await SunmiPrinterUtil.init();
+          FeedbackUtil.dismiss();
+
+          if (!initialized) {
+            FeedbackUtil.showError('打印机初始化失败');
+            return;
+          }
+        }
+
+        // 打印二维码
+        FeedbackUtil.showLoading('打印中...');
+        await SunmiPrinterUtil.printPalletQrCode(
+          res.toString(),
+          title: "托盘二维码",
+        );
+        FeedbackUtil.dismiss();
+        FeedbackUtil.showSuccess('上传并打印成功');
+      } catch (e) {
+        FeedbackUtil.dismiss();
+        print("打印失败: $e");
+        FeedbackUtil.showError('打印失败: $e');
+        return;
+      }
+    } else {
+      FeedbackUtil.showSuccess('上传成功');
+    }
 
     scannedTags = <ProdTag>[];
     await clearCachedTags();
@@ -83,25 +82,4 @@ class PalletState extends BaseProdTagScanState {
   }
 }
 
-class PalletScope extends InheritedNotifier<PalletState> {
-  const PalletScope({
-    super.key,
-    required PalletState notifier,
-    required super.child,
-  }) : super(notifier: notifier);
-
-  static PalletState watch(BuildContext context) {
-    final PalletScope? scope =
-        context.dependOnInheritedWidgetOfExactType<PalletScope>();
-    assert(scope != null, 'PalletScope not found in context.');
-    return scope!.notifier!;
-  }
-
-  static PalletState read(BuildContext context) {
-    final InheritedElement? element =
-        context.getElementForInheritedWidgetOfExactType<PalletScope>();
-    final PalletScope? scope = element?.widget as PalletScope?;
-    assert(scope != null, 'PalletScope not found in context.');
-    return scope!.notifier!;
-  }
-}
+typedef PalletScope = NotifierScope<PalletState>;

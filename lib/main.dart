@@ -16,6 +16,7 @@ import 'package:hz_xg_pda/module_putaway/return_inbound/index.dart';
 import 'package:hz_xg_pda/page/home_page.dart';
 import 'package:hz_xg_pda/page/login_page.dart';
 import 'package:hz_xg_pda/page/mine_page.dart';
+import 'package:hz_xg_pda/page/sunmi_printer_test_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,6 +66,7 @@ class WarehouseApp extends StatelessWidget {
         AppRoutes.returnInbound: (context) => const ReturnInboundPage(),
         AppRoutes.putawayMove: (context) => const MovePage(),
         AppRoutes.documentOperation: (context) => const DocumentOperationPage(),
+        AppRoutes.sunmiPrinterTest: (context) => const SunmiPrinterTestPage(),
       },
       builder: EasyLoading.init(),
     );
