@@ -3,28 +3,18 @@ import 'package:hz_xg_pda/entity/prod_tag.dart';
 import 'package:hz_xg_pda/http/StockInApi.dart';
 import 'package:hz_xg_pda/module_putaway/base/base_putaway_state.dart';
 import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
 
 class ReturnInboundState extends BasePutawayState {
-  ReturnInboundState({
-    List<ProdTag>? initialScannedTags,
-    bool useCache = true,
-  }) : super(
-          initialScannedTags: initialScannedTags,
-          useCache: useCache,
-        );
+  ReturnInboundState();
 
   @override
   ProgTagCacheKey get cacheKey => ProgTagCacheKey.returnInbound;
 
   @override
   int get tagFlag => 7;
-
-  @override
-  String buildSpec(ProdTag firstTag) {
-    return '${firstTag.spec ?? '--'} | ${firstTag.inventoryCode ?? '--'}';
-  }
 
   Future<void> confirmReturnInbound(BuildContext context) async {
     if (scannedTags.isEmpty) {
@@ -47,7 +37,7 @@ class ReturnInboundState extends BasePutawayState {
     await StockInApi.add({
       'locId': locId,
       'tagNos': tagNos,
-    });
+    }, type: 1);
     FeedbackUtil.showSuccess('退货入库成功');
     scannedTags = <ProdTag>[];
     await clearCachedTags();
@@ -55,25 +45,4 @@ class ReturnInboundState extends BasePutawayState {
   }
 }
 
-class ReturnInboundScope extends InheritedNotifier<ReturnInboundState> {
-  const ReturnInboundScope({
-    super.key,
-    required ReturnInboundState notifier,
-    required super.child,
-  }) : super(notifier: notifier);
-
-  static ReturnInboundState watch(BuildContext context) {
-    final ReturnInboundScope? scope =
-        context.dependOnInheritedWidgetOfExactType<ReturnInboundScope>();
-    assert(scope != null, 'ReturnInboundScope not found in context.');
-    return scope!.notifier!;
-  }
-
-  static ReturnInboundState read(BuildContext context) {
-    final InheritedElement? element =
-        context.getElementForInheritedWidgetOfExactType<ReturnInboundScope>();
-    final ReturnInboundScope? scope = element?.widget as ReturnInboundScope?;
-    assert(scope != null, 'ReturnInboundScope not found in context.');
-    return scope!.notifier!;
-  }
-}
+typedef ReturnInboundScope = NotifierScope<ReturnInboundState>;
