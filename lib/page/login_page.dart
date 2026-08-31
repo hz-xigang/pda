@@ -6,6 +6,9 @@ import 'package:hz_xg_pda/http/UserApi.dart';
 import 'package:hz_xg_pda/provider/TokenProvider.dart';
 import 'package:hz_xg_pda/util/JwtUtil.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:sunmi_flutter_plugin_printer/api/impl/line_api_impl.dart';
+import 'package:sunmi_flutter_plugin_printer/api/line_api.dart';
+import 'package:sunmi_flutter_plugin_printer/style/qr_style.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,6 +26,9 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _restoreLoginUser();
+
+
+
   }
 
   @override
@@ -60,36 +66,38 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try{
-      var token =  await UserApi.login({
-        "username" : username,
-        "pwd" : password,
+        var token =  await UserApi.login({
+          "username" : username,
+          "pwd" : password,
+        });
+
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+
+
+        await TokenProvider.saveLoginUser(
+        LoginUser(
+          username: username,
+          pwd: password,
+          rememberMe: true,
+          realName: decodedToken['realName'],
+          token: token,
+        ),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isSubmitting = false;
       });
 
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      EasyLoading.showSuccess("登录成功");
 
-
-      await TokenProvider.saveLoginUser(
-      LoginUser(
-        username: username,
-        pwd: password,
-        rememberMe: true,
-        realName: decodedToken['realName'],
-        token: token,
-      ),
-    );
-
-    if (!mounted) {
-      return;
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
     }
 
-    setState(() {
-      _isSubmitting = false;
-    });
-
-    EasyLoading.showSuccess("登录成功");
-
-    Navigator.pushReplacementNamed(context, AppRoutes.home);
-    }catch(e){
+    catch(e){
       setState(() {
         _isSubmitting = false;
       });
@@ -97,6 +105,16 @@ class _LoginPageState extends State<LoginPage> {
 
 
   }
+
+
+
+/*  void testPrint(){
+    lineApi.printQrCode(
+      "1234567890",
+      QrStyle.getStyle().setDot(9).setAlign(printer.Align.CENTER),
+    );
+  }*/
+
 
   @override
   Widget build(BuildContext context) {

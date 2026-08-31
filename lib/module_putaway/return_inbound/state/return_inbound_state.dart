@@ -23,7 +23,6 @@ class ReturnInboundState extends BasePutawayState {
     }
 
     final bool confirm = await DialogUtil.showConfirmDialog(
-      context,
       content: '确认退货入库吗？',
     );
     if (!confirm) {

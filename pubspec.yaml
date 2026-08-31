@@ -23,6 +23,7 @@ dependencies:
   jwt_decoder: ^2.0.1
   sunmi_flutter_plugin_printer:
     path: plugins/sunmi_flutter_plugin_printer
+  package_info_plus: ^10.2.1
 
 dev_dependencies:
   flutter_test:

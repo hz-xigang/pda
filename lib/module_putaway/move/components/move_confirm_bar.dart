@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/workflow/primary_action_button.dart';
 import 'package:hz_xg_pda/module_putaway/move/state/move_state.dart';
 
@@ -7,7 +8,7 @@ class MoveConfirmBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = MoveScope.read(context);
+    final state = NotifierScope.read<MoveState>(context);
 
     return PrimaryActionButton(
       onPressed: () => state.confirmMove(context),

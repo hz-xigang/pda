@@ -28,7 +28,6 @@ class PalletState extends BaseProdTagScanState {
     }
 
     final bool confirm = await DialogUtil.showConfirmDialog(
-      context,
       content: '确定要确认打托吗？',
     );
     if (!confirm) {
@@ -38,7 +37,7 @@ class PalletState extends BaseProdTagScanState {
     final List<String> tagNos = scannedTags.map((it) => '${it.tagNo}').toList();
     FeedbackUtil.showLoading('上传中...');
     var res = await PalletApi.add(tagNos);
-    print("res@@  $res");
+
 
     // res 是需要打印的二维码内容
     FeedbackUtil.dismiss();

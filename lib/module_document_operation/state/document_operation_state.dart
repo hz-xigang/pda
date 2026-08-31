@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hz_xg_pda/entity/pallet_product_item.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
 import 'package:hz_xg_pda/http/StockOrderApi.dart';
 import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
 import 'package:hz_xg_pda/state/base_prod_tag_scan_state.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
 
@@ -44,17 +44,9 @@ class DocumentOperationState extends BaseProdTagScanState {
   var _prepList = <DocumentOperationDocumentOption>[];
   var _shipList = <DocumentOperationDocumentOption>[];
 
-  DocumentOperationState({
-    List<ProdTag>? initialScannedTags,
-    bool useCache = true,
-  }) : super(
-          initialScannedTags: initialScannedTags,
-          useCache: useCache,
-        ) {
+  DocumentOperationState() {
     _syncSelectedDocument(_documentsByType(_selectedOrderType.key));
-    if (this.useCache) {
-      loadCachedTags();
-    }
+    loadCachedTags();
     initOrderList();
   }
 
@@ -79,37 +71,6 @@ class DocumentOperationState extends BaseProdTagScanState {
   List<DocumentOperationDocumentOption> get documentOptions =>
       _documentsByType(_selectedOrderType.key);
   bool get canSwitchSelectors => scannedTags.isEmpty;
-
-  List<PalletProductItem> get products {
-    final Map<String, List<ProdTag>> groups = <String, List<ProdTag>>{};
-    for (final ProdTag tag in scannedTags) {
-      final String poId = tag.prodOrderId ?? 'unknown_po';
-      groups.putIfAbsent(poId, () => <ProdTag>[]).add(tag);
-    }
-
-    return groups.entries.map((entry) {
-      final List<ProdTag> tags = entry.value;
-      final ProdTag firstTag = tags.first;
-      final int totalQty = tags.fold<int>(
-        0,
-        (sum, tag) => sum + (tag.qty ?? 0).toInt(),
-      );
-
-      return PalletProductItem(
-        prodOrderId: entry.key,
-        name: firstTag.productCategory ?? '--',
-        prodNo: firstTag.prodNo ?? '--',
-        spec: '${firstTag.spec ?? '--'} | ${firstTag.inventoryCode ?? '--'}',
-        count: totalQty,
-        tags: tags,
-      );
-    }).toList(growable: false);
-  }
-
-  int get totalCount => products.fold<int>(
-        0,
-        (sum, item) => sum + item.count,
-      );
 
   Future<void> updateOrderType(DocumentOperationTypeOption? value) async {
     if (value == null || !canSwitchSelectors) {
@@ -143,7 +104,6 @@ class DocumentOperationState extends BaseProdTagScanState {
     }
 
     final bool confirm = await DialogUtil.showConfirmDialog(
-      context,
       content: '确认执行${_selectedOrderType.label} ${_selectedDocument!.no}吗？',
     );
     if (!confirm) {
@@ -264,27 +224,4 @@ class DocumentOperationState extends BaseProdTagScanState {
       ];
 }
 
-class DocumentOperationScope
-    extends InheritedNotifier<DocumentOperationState> {
-  const DocumentOperationScope({
-    super.key,
-    required DocumentOperationState notifier,
-    required super.child,
-  }) : super(notifier: notifier);
-
-  static DocumentOperationState watch(BuildContext context) {
-    final DocumentOperationScope? scope =
-        context.dependOnInheritedWidgetOfExactType<DocumentOperationScope>();
-    assert(scope != null, 'DocumentOperationScope not found in context.');
-    return scope!.notifier!;
-  }
-
-  static DocumentOperationState read(BuildContext context) {
-    final InheritedElement? element =
-        context.getElementForInheritedWidgetOfExactType<DocumentOperationScope>();
-    final DocumentOperationScope? scope =
-        element?.widget as DocumentOperationScope?;
-    assert(scope != null, 'DocumentOperationScope not found in context.');
-    return scope!.notifier!;
-  }
-}
+typedef DocumentOperationScope = NotifierScope<DocumentOperationState>;

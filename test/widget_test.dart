@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hz_xg_pda/entity/production_order.dart';
 import 'package:hz_xg_pda/main.dart';
-import 'package:hz_xg_pda/module_carton/print/index.dart';
+
 
 void main() {
   testWidgets('renders home page by default and navigates to mine page', (
@@ -36,17 +36,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: CartonLabelPrintPage(
-          productionOrder: const ProductionOrder(
-            prodNo: 'SC20260429001',
-            productCategory: '成品',
-            erpOrderNo: 'PO-8823-KL',
-            customerCode: 'CUST-PN-5621',
-            inventoryName: '精密轴承组件',
-            spec: 'BRG-6205-2RS',
-            inventoryCode: 'INV-20240056',
-          ),
-        ),
+
       ),
     );
 

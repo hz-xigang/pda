@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/tag_item/index.dart';
 import 'package:hz_xg_pda/components/workflow/product_list_view.dart';
 import 'package:hz_xg_pda/module_putaway/move/state/move_state.dart';
@@ -8,7 +9,7 @@ class MoveProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = MoveScope.watch(context);
+    final state = NotifierScope.watch<MoveState>(context);
 
     return ProductListView(
       products: state.products,
@@ -17,7 +18,7 @@ class MoveProductList extends StatelessWidget {
       accentColor: const Color(0xFF00B894),
       iconBackgroundColor: const Color(0xFFE3FBF5),
       onTapItem: (item) {
-        final moveState = MoveScope.read(context);
+        final moveState = NotifierScope.read<MoveState>(context);
         Navigator.push(
           context,
           MaterialPageRoute(

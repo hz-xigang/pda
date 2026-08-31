@@ -6,10 +6,9 @@ import 'package:hz_xg_pda/app_routes.dart';
 import 'package:hz_xg_pda/entity/login_user.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
 import 'package:hz_xg_pda/entity/production_order.dart';
-import 'package:hz_xg_pda/module_carton/list/list_index.dart';
-import 'package:hz_xg_pda/module_carton/print/index.dart';
 import 'package:hz_xg_pda/module_document_operation/index.dart';
 import 'package:hz_xg_pda/module_pallet/print/index.dart';
+import 'package:hz_xg_pda/module_pallet/unbundle/index.dart';
 import 'package:hz_xg_pda/module_putaway/inbound/index.dart';
 import 'package:hz_xg_pda/module_putaway/move/index.dart';
 import 'package:hz_xg_pda/module_putaway/return_inbound/index.dart';
@@ -38,6 +37,7 @@ class WarehouseApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '仓储作业',
+      navigatorKey: AppRoutes.navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -59,9 +59,8 @@ class WarehouseApp extends StatelessWidget {
         AppRoutes.login: (context) => const LoginPage(),
         AppRoutes.home: (context) => const HomePage(),
         AppRoutes.mine: (context) => const MinePage(),
-        AppRoutes.cartonLabelPrint: (context) => CartonLabelPrintPage(),
-        AppRoutes.cartonLabelList: (context) => const CartonLabelListPage(),
         AppRoutes.palletOperation: (context) => const PalletOperationPage(),
+        AppRoutes.palletUnbundle: (context) => const UnbundlePalletPage(),
         AppRoutes.palletInbound: (context) => const InboundPage(),
         AppRoutes.returnInbound: (context) => const ReturnInboundPage(),
         AppRoutes.putawayMove: (context) => const MovePage(),

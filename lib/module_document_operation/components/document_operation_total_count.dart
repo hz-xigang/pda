@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/module_document_operation/document_operation_theme.dart';
 import 'package:hz_xg_pda/module_document_operation/state/document_operation_state.dart';
 
@@ -7,7 +8,7 @@ class DocumentOperationTotalCount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = DocumentOperationScope.watch(context);
+    final state = NotifierScope.watch<DocumentOperationState>(context);
 
     return Container(
       width: double.infinity,

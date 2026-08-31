@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/workflow/total_count_card.dart';
 import 'package:hz_xg_pda/module_pallet/print/state/pallet_state.dart';
 
@@ -7,7 +8,7 @@ class PalletTotalCount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = PalletScope.watch(context);
+    final state = NotifierScope.watch<PalletState>(context);
 
     return TotalCountCard(
       count: state.totalCount,

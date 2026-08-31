@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/module_putaway/base/components/base_putaway_location_section.dart';
 import 'package:hz_xg_pda/module_putaway/return_inbound/state/return_inbound_state.dart';
 
@@ -7,7 +8,7 @@ class ReturnInboundLocationSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = ReturnInboundScope.watch(context);
+    final state = NotifierScope.watch<ReturnInboundState>(context);
 
     return BasePutawayLocationSection(
       accentColor: const Color(0xFFFF4D5E),

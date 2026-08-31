@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/workflow/workflow_step_indicator.dart';
 import 'package:hz_xg_pda/module_putaway/inbound/state/inbound_state.dart';
 
@@ -7,7 +8,7 @@ class InboundStepIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = InboundScope.watch(context);
+    final state = NotifierScope.watch<InboundState>(context);
 
     return WorkflowStepIndicator(
       currentStep: state.currentStep,

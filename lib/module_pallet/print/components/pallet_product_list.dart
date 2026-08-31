@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/tag_item/index.dart';
 import 'package:hz_xg_pda/components/workflow/product_list_view.dart';
 import 'package:hz_xg_pda/module_pallet/print/state/pallet_state.dart';
@@ -8,7 +9,7 @@ class PalletProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = PalletScope.watch(context);
+    final state = NotifierScope.watch<PalletState>(context);
 
     return ProductListView(
       products: state.products,
@@ -17,7 +18,7 @@ class PalletProductList extends StatelessWidget {
       accentColor: const Color(0xFF8B3DFF),
       iconBackgroundColor: const Color(0xFFF1E8FF),
       onTapItem: (item) {
-        final palletState = PalletScope.read(context);
+        final palletState = NotifierScope.read<PalletState>(context);
         Navigator.push(
           context,
           MaterialPageRoute(

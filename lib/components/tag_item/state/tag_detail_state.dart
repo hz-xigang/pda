@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 
 class TagDetailState extends ChangeNotifier {
   final Set<String> _selectedTagKeys = <String>{};
@@ -49,25 +50,4 @@ class TagDetailState extends ChangeNotifier {
   }
 }
 
-class TagDetailScope extends InheritedNotifier<TagDetailState> {
-  const TagDetailScope({
-    super.key,
-    required TagDetailState notifier,
-    required super.child,
-  }) : super(notifier: notifier);
-
-  static TagDetailState watch(BuildContext context) {
-    final TagDetailScope? scope =
-        context.dependOnInheritedWidgetOfExactType<TagDetailScope>();
-    assert(scope != null, 'TagDetailScope not found in context.');
-    return scope!.notifier!;
-  }
-
-  static TagDetailState read(BuildContext context) {
-    final InheritedElement? element =
-        context.getElementForInheritedWidgetOfExactType<TagDetailScope>();
-    final TagDetailScope? scope = element?.widget as TagDetailScope?;
-    assert(scope != null, 'TagDetailScope not found in context.');
-    return scope!.notifier!;
-  }
-}
+typedef TagDetailScope = NotifierScope<TagDetailState>;

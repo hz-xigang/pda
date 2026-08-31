@@ -9,11 +9,15 @@ class StockInApi {
 
   /// [type] 0=普通入库, 1=退货入库（对应后端 StockInController 的 type 参数）
   static Future<dynamic> add(Map<String,dynamic> data, {int type = 0}){
-    return ApiClient.instance.post(
+    var msg =  ApiClient.instance.post(
       _basePath,
       data: data,
       queryParameters: {'type': type},
     );
+
+    print("msg==${msg}");
+
+    return msg;
   }
 
 }

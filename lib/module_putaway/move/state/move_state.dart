@@ -3,17 +3,12 @@ import 'package:hz_xg_pda/entity/prod_tag.dart';
 import 'package:hz_xg_pda/http/StockMoveApi.dart';
 import 'package:hz_xg_pda/module_putaway/base/base_putaway_state.dart';
 import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
 
 class MoveState extends BasePutawayState {
-  MoveState({
-    List<ProdTag>? initialScannedTags,
-    bool useCache = true,
-  }) : super(
-          initialScannedTags: initialScannedTags,
-          useCache: useCache,
-        );
+  MoveState();
 
   @override
   ProgTagCacheKey get cacheKey => ProgTagCacheKey.move;
@@ -22,9 +17,9 @@ class MoveState extends BasePutawayState {
   int get tagFlag => 3;
 
   @override
-  String buildSpec(ProdTag firstTag) {
-    return '原库位: ${firstTag.locCode ?? '--'}\n${firstTag.spec ?? '--'} | ${firstTag.inventoryCode ?? '--'}';
-  }
+  @override
+  String buildSpec(ProdTag tag) =>
+      '原库位: ${tag.locCode ?? '--'}\n${tag.spec ?? '--'} | ${tag.inventoryCode ?? '--'}';
 
   Future<void> confirmMove(BuildContext context) async {
     if (scannedTags.isEmpty) {
@@ -33,7 +28,6 @@ class MoveState extends BasePutawayState {
     }
 
     final bool confirm = await DialogUtil.showConfirmDialog(
-      context,
       content: '确认移库吗？',
     );
     if (!confirm) {
@@ -54,25 +48,4 @@ class MoveState extends BasePutawayState {
   }
 }
 
-class MoveScope extends InheritedNotifier<MoveState> {
-  const MoveScope({
-    super.key,
-    required MoveState notifier,
-    required super.child,
-  }) : super(notifier: notifier);
-
-  static MoveState watch(BuildContext context) {
-    final MoveScope? scope =
-        context.dependOnInheritedWidgetOfExactType<MoveScope>();
-    assert(scope != null, 'MoveScope not found in context.');
-    return scope!.notifier!;
-  }
-
-  static MoveState read(BuildContext context) {
-    final InheritedElement? element =
-        context.getElementForInheritedWidgetOfExactType<MoveScope>();
-    final MoveScope? scope = element?.widget as MoveScope?;
-    assert(scope != null, 'MoveScope not found in context.');
-    return scope!.notifier!;
-  }
-}
+typedef MoveScope = NotifierScope<MoveState>;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/app_back_bar.dart';
 import 'package:hz_xg_pda/components/tag_item/components/tag_detail_action_bar.dart';
 import 'package:hz_xg_pda/components/tag_item/components/tag_detail_header.dart';
@@ -59,7 +60,7 @@ class _TagDetailPageState extends State<TagDetailPage> {
     }
 
     final bool confirm = await DialogUtil.showConfirmDialog(
-      context,
+      context: context,
       content: '确定要删除选中的 ${selectedTags.length} 个条码吗？',
     );
     if (!confirm || !mounted) {
@@ -72,7 +73,7 @@ class _TagDetailPageState extends State<TagDetailPage> {
 
   Future<void> _deleteAll() async {
     final bool confirm = await DialogUtil.showConfirmDialog(
-      context,
+      context: context,
       content: '确定要删除该产品下的全部条码吗？',
     );
     if (!confirm || !mounted) {

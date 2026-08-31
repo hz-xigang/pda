@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hz_xg_pda/entity/response_dto.dart';
 import 'package:hz_xg_pda/http/ApiException.dart';
 import 'package:hz_xg_pda/provider/TokenProvider.dart';
+import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
 
 class ApiClient {
@@ -81,9 +82,11 @@ class ApiClient {
           rawResponse: jsonMap,
         );
         onError?.call(exception);
-        FeedbackUtil.showError(
+
+       /* FeedbackUtil.showError(
           resp.message.isEmpty ? '请求失败' : resp.message,
-        );
+        );*/
+        DialogUtil.showAlert(content:  resp.message.isEmpty ? '请求失败' : resp.message);
         throw exception;
       }
 

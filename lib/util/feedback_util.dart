@@ -27,4 +27,9 @@ class FeedbackUtil {
       SnackBar(content: Text(message)),
     );
   }
+
+  static void dismiss() {
+    EasyLoading.dismiss();
+  }
+
 }

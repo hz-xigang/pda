@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/tag_item/index.dart';
 import 'package:hz_xg_pda/components/workflow/product_list_view.dart';
 import 'package:hz_xg_pda/module_document_operation/document_operation_theme.dart';
@@ -9,7 +10,7 @@ class DocumentOperationProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = DocumentOperationScope.watch(context);
+    final state = NotifierScope.watch<DocumentOperationState>(context);
 
     return ProductListView(
       products: state.products,
@@ -18,7 +19,7 @@ class DocumentOperationProductList extends StatelessWidget {
       accentColor: documentOperationAccentColor,
       iconBackgroundColor: documentOperationLightColor,
       onTapItem: (item) {
-        final documentState = DocumentOperationScope.read(context);
+        final documentState = NotifierScope.read<DocumentOperationState>(context);
         Navigator.push(
           context,
           MaterialPageRoute(

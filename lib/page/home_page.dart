@@ -107,6 +107,13 @@ class _HomePageState extends State<HomePage> {
       routeName: AppRoutes.palletOperation,
     ),
     _WorkCardData(
+      title: '拆托',
+      accentColor: Color(0xFFE86B3C),
+      iconBackground: Color(0xFFFFF0E9),
+      icon: Icons.unarchive_outlined,
+      routeName: AppRoutes.palletUnbundle,
+    ),
+    _WorkCardData(
       title: '扫描入库',
       accentColor: Color(0xFF18A8F1),
       iconBackground: Color(0xFFE5F7FF),

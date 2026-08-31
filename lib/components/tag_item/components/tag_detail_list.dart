@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/tag_item/components/tag_card.dart';
 import 'package:hz_xg_pda/components/tag_item/state/tag_detail_state.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
@@ -15,7 +16,7 @@ class TagDetailList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final detailState = TagDetailScope.watch(context);
+    final detailState = NotifierScope.watch<TagDetailState>(context);
 
     if (tags.isEmpty) {
       return const Center(

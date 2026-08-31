@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/workflow/primary_action_button.dart';
 import 'package:hz_xg_pda/module_pallet/print/state/pallet_state.dart';
 
@@ -7,7 +8,7 @@ class PalletConfirmBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = PalletScope.read(context);
+    final state = NotifierScope.read<PalletState>(context);
 
     return PrimaryActionButton(
       onPressed: () => state.confirmPallet(context),
