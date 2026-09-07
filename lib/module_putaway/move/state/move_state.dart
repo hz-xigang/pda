@@ -37,11 +37,18 @@ class MoveState extends BasePutawayState {
     final List<String> tagNos = scannedTags.map((it) => '${it.tagNo}').toList();
     final locId = selectedLocation?.id;
     FeedbackUtil.showLoading('移库中...');
-    await StockMoveApi.add({
+    var res = await StockMoveApi.add({
       'locId': locId,
       'tagNos': tagNos,
     });
-    FeedbackUtil.showSuccess('移库成功');
+
+    if(res != null && res.length == 0){
+      FeedbackUtil.showSuccess('移库成功');
+    }else{
+      DialogUtil.showAlert(content: res);
+    }
+
+
     scannedTags = <ProdTag>[];
     await clearCachedTags();
     notifyListeners();

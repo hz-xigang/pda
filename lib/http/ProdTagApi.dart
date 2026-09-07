@@ -48,4 +48,20 @@ class ProdTagApi {
 
     return ProdTag.fromJson(res);
   }
+
+
+  static Future<ProdTag> checkOrderNo(String tagNo,String orderNo,String type,
+      void Function(ApiException exception)? onError) async
+  {
+    final dynamic res = await ApiClient.instance.get(
+        '$_basePath/check$type?orderNo=$orderNo&tagNo=$tagNo',
+        options: Options(
+          contentType: Headers.jsonContentType,
+        ),
+        onError: onError
+    );
+
+    return ProdTag.fromJson(res);
+  }
+
 }

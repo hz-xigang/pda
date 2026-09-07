@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:hz_xg_pda/entity/loc_archive.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
+import 'package:hz_xg_pda/http/LocApi.dart';
+import 'package:hz_xg_pda/http/ProdTagApi.dart';
 import 'package:hz_xg_pda/http/StockOrderApi.dart';
 import 'package:hz_xg_pda/provider/ProgTagCacheProvider.dart';
 import 'package:hz_xg_pda/state/base_prod_tag_scan_state.dart';
 import 'package:hz_xg_pda/state/notifier_scope.dart';
+import 'package:hz_xg_pda/util/PdaUtil.dart';
 import 'package:hz_xg_pda/util/dialog_util.dart';
 import 'package:hz_xg_pda/util/feedback_util.dart';
 
@@ -44,10 +48,14 @@ class DocumentOperationState extends BaseProdTagScanState {
   var _prepList = <DocumentOperationDocumentOption>[];
   var _shipList = <DocumentOperationDocumentOption>[];
 
+  List<LocArchive> _locationOptions = <LocArchive>[];
+  LocArchive? _selectedLocation;
+
   DocumentOperationState() {
     _syncSelectedDocument(_documentsByType(_selectedOrderType.key));
     loadCachedTags();
     initOrderList();
+    initLocList();
   }
 
   @override
@@ -66,11 +74,62 @@ class DocumentOperationState extends BaseProdTagScanState {
     }
   }
 
+  /// 转换当前单据类型为 ProdTagApi 识别的 type 字符串 (Ship, Transfer, Prep)
+  String get _apiCheckType {
+    switch (_selectedOrderType.key) {
+      case 'delivery_out':
+        return 'Ship';
+      case 'stock_prepare':
+        return 'Prep';
+      case 'transfer':
+      default:
+        return 'Transfer';
+    }
+  }
+
+  @override
+  Future<ProdTag> fetchSingleTag(
+    String barcode, {
+    BuildContext? context,
+  }) async {
+    if (_selectedDocument == null || _selectedDocument!.no.isEmpty) {
+      throw Exception('请先选择单据后再进行扫码');
+    }
+
+    return ProdTagApi.checkOrderNo(
+      barcode,
+      _selectedDocument!.no,
+      _apiCheckType,
+      (e) => PdaUtil.errorScan(e.message, context: context,needDialog: false),
+    );
+  }
+
   DocumentOperationTypeOption get selectedOrderType => _selectedOrderType;
   DocumentOperationDocumentOption? get selectedDocument => _selectedDocument;
   List<DocumentOperationDocumentOption> get documentOptions =>
       _documentsByType(_selectedOrderType.key);
   bool get canSwitchSelectors => scannedTags.isEmpty;
+  bool get isPrepOrder => _selectedOrderType.key == 'stock_prepare';
+
+  List<LocArchive> get locationOptions => _locationOptions;
+  LocArchive? get selectedLocation => _selectedLocation;
+
+  Future<void> initLocList() async {
+    final res = await LocApi.list();
+    _locationOptions = res;
+    if (_selectedLocation == null && _locationOptions.isNotEmpty) {
+      _selectedLocation = _locationOptions.first;
+    }
+    notifyListeners();
+  }
+
+  void updateLocation(LocArchive? value) {
+    if (value == null || !canSwitchSelectors || value.id == _selectedLocation?.id) {
+      return;
+    }
+    _selectedLocation = value;
+    notifyListeners();
+  }
 
   Future<void> updateOrderType(DocumentOperationTypeOption? value) async {
     if (value == null || !canSwitchSelectors) {
@@ -110,9 +169,11 @@ class DocumentOperationState extends BaseProdTagScanState {
       return;
     }
     FeedbackUtil.showLoading('提交中...');
-    var req = {
-      "no" : _selectedDocument!.no,
-      "tagNos" : scannedTags.map((tag) => tag.tagNo).toList()
+    var req = <String, dynamic>{
+      "no": _selectedDocument!.no,
+      "tagNos": scannedTags.map((tag) => tag.tagNo).toList(),
+      if (isPrepOrder && _selectedLocation?.locCode != null)
+        "locCode": _selectedLocation!.id,
     };
 
     if(_selectedOrderType.key == 'delivery_out'){

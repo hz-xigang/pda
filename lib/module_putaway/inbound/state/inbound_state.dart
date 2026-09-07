@@ -33,11 +33,19 @@ class InboundState extends BasePutawayState {
     final locId = selectedLocation?.id;
 
     FeedbackUtil.showLoading('入库中...');
-    await StockInApi.add({
+    var res = await StockInApi.add({
       'locId': locId,
       'tagNos': tagNos,
     });
-    FeedbackUtil.showSuccess('入库成功');
+
+
+    if(res != null && res.length == 0){
+      FeedbackUtil.showSuccess('入库成功');
+    }else{
+      DialogUtil.showAlert(content: res);
+    }
+
+
     scannedTags = <ProdTag>[];
     await clearCachedTags();
     notifyListeners();

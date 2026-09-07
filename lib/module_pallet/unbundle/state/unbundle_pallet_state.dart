@@ -27,7 +27,7 @@ class UnbundlePalletState extends ChangeNotifier {
   }
 
   Future<void> loadPallet(String barcode) async {
-    final String palletNo = barcode.startsWith('3') ? barcode.substring(1) : barcode;
+    final String palletNo =  barcode;
 
     _isLoading = true;
     notifyListeners();

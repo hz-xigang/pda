@@ -16,7 +16,7 @@ class ApiClient {
   factory ApiClient() => instance;
 
   static final String baseUrl = kDebugMode
-      ? 'http://192.168.1.100:7100/'
+      ? 'http://192.168.1.36:7100/'
       : 'http://175.178.92.52/';
 
   late final Dio _dio = Dio(
@@ -82,10 +82,6 @@ class ApiClient {
           rawResponse: jsonMap,
         );
         onError?.call(exception);
-
-       /* FeedbackUtil.showError(
-          resp.message.isEmpty ? '请求失败' : resp.message,
-        );*/
         DialogUtil.showAlert(content:  resp.message.isEmpty ? '请求失败' : resp.message);
         throw exception;
       }
@@ -100,7 +96,7 @@ class ApiClient {
         rawResponse: e.response?.data,
       );
       onError?.call(exception);
-      FeedbackUtil.showError(e.message ?? '网络请求失败');
+      DialogUtil.showAlert(content: "网络请求失败:${e.message}" ?? '网络请求失败');
       print(e);
       print(url);
       throw exception;
@@ -110,7 +106,7 @@ class ApiClient {
         rawResponse: e.source,
       );
       onError?.call(exception);
-      FeedbackUtil.showError(e.message);
+      DialogUtil.showAlert(content: e.message);
       throw exception;
     } catch (e) {
       final exception = ApiException(
@@ -118,7 +114,7 @@ class ApiClient {
       );
       onError?.call(exception);
       print(e);
-      FeedbackUtil.showError(e.toString());
+      DialogUtil.showAlert(content: e.toString());
       throw exception;
     }
   }

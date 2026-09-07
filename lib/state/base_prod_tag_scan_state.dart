@@ -62,7 +62,33 @@ abstract class BaseProdTagScanState extends ChangeNotifier {
     await ProgTagCacheProvider.clearTags(cacheKey);
   }
 
-  Future<void> onScanProduct(String barcode, BuildContext context) async {
+  /// 获取单个产品标签信息（子类可重写定制接口）
+  @protected
+  Future<ProdTag> fetchSingleTag(
+    String barcode, {
+    BuildContext? context,
+  }) {
+    return ProdTagApi.findByTagNo(
+      barcode,
+      tagFlag,
+      (e) => PdaUtil.errorScan(e.message, context: context),
+    );
+  }
+
+  /// 获取托盘标签列表（子类可重写定制接口）
+  @protected
+  Future<List<ProdTag>> fetchPalletTags(
+    String barcode, {
+    BuildContext? context,
+  }) {
+    return PalletApi.findTagsByPallet(
+      barcode,
+      tagFlag,
+      (e) => PdaUtil.errorScan(e.message, context: context),
+    );
+  }
+
+  Future<void> onScanProduct(String barcode, [BuildContext? context]) async {
     final String cleanBarcode = barcode.trim();
     if (cleanBarcode.isEmpty) {
       return;
@@ -72,10 +98,9 @@ abstract class BaseProdTagScanState extends ChangeNotifier {
     if (barcode.startsWith("3")) {
       try {
         FeedbackUtil.showLoading('正在获取托盘标签信息...');
-        List<ProdTag> tags = await PalletApi.findTagsByPallet(
+        List<ProdTag> tags = await fetchPalletTags(
           cleanBarcode,
-          tagFlag,
-          (e) => PdaUtil.errorScan(context, e.message),
+          context: context,
         );
 
         if (tags.isEmpty) {
@@ -115,14 +140,13 @@ abstract class BaseProdTagScanState extends ChangeNotifier {
     // 扫描单个产品标签
     try {
       FeedbackUtil.showLoading('正在获取标签信息...');
-      final ProdTag tag = await ProdTagApi.findByTagNo(
+      final ProdTag tag = await fetchSingleTag(
         cleanBarcode,
-        tagFlag,
-        (e) => PdaUtil.errorScan(context, e.message),
+        context: context,
       );
 
       if (tag.id != null && scannedTags.any((t) => t.id == tag.id)) {
-        PdaUtil.errorScan(context, '该标签已扫描');
+        PdaUtil.errorScan('该标签已扫描', context: context);
         EasyLoading.dismiss();
         return;
       }

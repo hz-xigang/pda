@@ -33,11 +33,18 @@ class ReturnInboundState extends BasePutawayState {
     final locId = selectedLocation?.id;
 
     FeedbackUtil.showLoading('退货入库中...');
-    await StockInApi.add({
+    var res = await StockInApi.add({
       'locId': locId,
       'tagNos': tagNos,
     }, type: 1);
-    FeedbackUtil.showSuccess('退货入库成功');
+
+    if(res != null && res.length == 0){
+      FeedbackUtil.showSuccess('退货入库成功');
+    }else{
+      DialogUtil.showAlert(content: res);
+    }
+
+
     scannedTags = <ProdTag>[];
     await clearCachedTags();
     notifyListeners();

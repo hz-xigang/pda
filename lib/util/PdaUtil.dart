@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
+import 'package:hz_xg_pda/app_routes.dart';
 import 'package:hz_xg_pda/const/index.dart';
 import 'package:hz_xg_pda/util/AudioUtil.dart';
 
@@ -54,7 +53,8 @@ class PdaUtil {
   static Timer? _errorTimer;
   static bool _isDialogShowing = false;
 
-  static Future<void> errorScan(BuildContext context,String msg) async {
+  static Future<void> errorScan(String msg, {BuildContext? context, bool needDialog=true}) async {
+    final ctx = context ?? AppRoutes.navigatorKey.currentContext;
 
     if (_isDialogShowing) return;
     _isDialogShowing = true;
@@ -66,47 +66,56 @@ class PdaUtil {
     AudioUtil.scanFailLoop();
     HapticUtil.error(dur: 6000);
 
-    // 3. 弹窗
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text("提示",style: ALERT_DIALOG_TITLE_STYLE,),
-          content:  Text(msg),
-          actions: [
-            TextButton(
-              onPressed: () {
-                _stopError();
-                Navigator.of(context).pop();
-              },
-              child: const Text("确认"),
-            ),
-          ],
-        );
-      },
-    );
+    if (ctx == null) {
+      // 如果没有上下文，仍然做 6 秒后恢复
+      _errorTimer?.cancel();
+      _errorTimer = Timer(const Duration(seconds: 6), () {
+        _stopError();
+      });
+      return;
+    }
 
+    // 3. 弹窗
+    if(needDialog){
+      showDialog(
+        context: ctx,
+        barrierDismissible: false,
+        builder: (dialogCtx) {
+          return AlertDialog(
+            title: const Text("提示", style: ALERT_DIALOG_TITLE_STYLE),
+            content: Text(msg),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  _stopError();
+                  Navigator.of(dialogCtx).pop();
+                },
+                child: const Text("确认"),
+              ),
+            ],
+          );
+        },
+      );
+
+    }
     // 4. 自动关闭（6秒）
     _errorTimer?.cancel();
     _errorTimer = Timer(const Duration(seconds: 6), () {
       _stopError();
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
+      if (Navigator.of(ctx).canPop()) {
+        Navigator.of(ctx).pop();
       }
     });
   }
 
   static Future<void> _stopError() async {
-
     _errorTimer?.cancel();
     _errorTimer = null;
 
-    AudioUtil.stop();      // 你需要加
-    HapticUtil.stop();     // 如果是循环震动
+    AudioUtil.stop();
+    HapticUtil.stop();
     controlScanner(true);
 
     _isDialogShowing = false;
   }
-
 }
