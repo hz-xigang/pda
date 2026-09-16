@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/module_document_operation/document_operation_theme.dart';
-import 'package:hz_xg_pda/module_document_operation/state/document_operation_state.dart';
 
 class DocumentOperationScanPrompt extends StatelessWidget {
   const DocumentOperationScanPrompt({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final state = DocumentOperationScope.read(context);
-
     return Material(
       color: Colors.transparent,
       child: InkWell(

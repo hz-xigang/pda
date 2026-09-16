@@ -28,7 +28,8 @@ class _DocumentOperationPageState extends State<DocumentOperationPage> {
     super.initState();
     _state = DocumentOperationState();
     _scanSubscription = PdaUtil().onScanResult.listen((result) {
-      _state.onScanProduct(result, context);
+      if (!mounted) return;
+      _state.onScan(result, context);
     });
   }
 

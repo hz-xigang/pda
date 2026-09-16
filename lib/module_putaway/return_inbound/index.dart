@@ -18,7 +18,7 @@ class ReturnInboundPage extends StatelessWidget {
         notifier: state,
         child: child,
       ),
-      onScan: (state, result, context) => state.onScanProduct(result, context),
+      onScan: (state, result, context) => state.onScan(result, context),
       child: const BasePutawayBody(
         stepIndicator: ReturnInboundStepIndicator(),
         totalCount: ReturnInboundTotalCount(),

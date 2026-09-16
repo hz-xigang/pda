@@ -50,6 +50,42 @@ class DocumentOperationState extends BaseProdTagScanState {
 
   List<LocArchive> _locationOptions = <LocArchive>[];
   LocArchive? _selectedLocation;
+  bool _isScanningLocation = false;
+  bool get isScanningLocation => _isScanningLocation;
+
+  void toggleScanLocationMode([bool? enabled]) {
+    _isScanningLocation = enabled ?? !_isScanningLocation;
+    notifyListeners();
+  }
+
+  /// 统一处理扫码事件：优先判断是否处于扫描目标仓位模式，否则作为产品/托盘扫码
+  Future<void> onScan(String barcode, BuildContext context) async {
+    final cleanCode = barcode.trim();
+    if (cleanCode.isEmpty) return;
+
+    if (_isScanningLocation) {
+      LocArchive? matched;
+      for (final loc in _locationOptions) {
+        if (loc.locCode?.trim().toUpperCase() == cleanCode.toUpperCase()) {
+          matched = loc;
+          break;
+        }
+      }
+
+      if (matched == null) {
+        PdaUtil.errorScan('仓位 [$cleanCode] 不存在', context: context);
+        return;
+      }
+
+      _selectedLocation = matched;
+      _isScanningLocation = false;
+      FeedbackUtil.showSuccess('目标仓位锁定: ${matched.locCode}');
+      notifyListeners();
+      return;
+    }
+
+    await onScanProduct(cleanCode, context);
+  }
 
   DocumentOperationState() {
     _syncSelectedDocument(_documentsByType(_selectedOrderType.key));
@@ -117,9 +153,6 @@ class DocumentOperationState extends BaseProdTagScanState {
   Future<void> initLocList() async {
     final res = await LocApi.list();
     _locationOptions = res;
-    if (_selectedLocation == null && _locationOptions.isNotEmpty) {
-      _selectedLocation = _locationOptions.first;
-    }
     notifyListeners();
   }
 
@@ -159,6 +192,11 @@ class DocumentOperationState extends BaseProdTagScanState {
 
     if (scannedTags.isEmpty) {
       FeedbackUtil.showInfo('暂无可操作数据');
+      return;
+    }
+
+    if (isPrepOrder && _selectedLocation == null) {
+      FeedbackUtil.showInfo('请先扫描目标仓位');
       return;
     }
 
