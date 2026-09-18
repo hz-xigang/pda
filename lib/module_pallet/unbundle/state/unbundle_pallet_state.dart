@@ -15,6 +15,7 @@ class UnbundlePalletState extends ChangeNotifier {
   List<ProdTag> get tags => _tags;
   Set<String> get selectedTagNos => _selectedTagNos;
   bool get isLoading => _isLoading;
+  // 注意：拆托页统计的是标签张数（待拆除勾选按张操作），与其他模块的 qty 件数之和口径不同，勿改。
   int get totalCount => _tags.length;
   int get selectedCount => _selectedTagNos.length;
   int get currentStep => (_palletNo == null || _tags.isEmpty) ? 1 : 2;

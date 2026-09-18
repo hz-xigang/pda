@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/app_back_bar.dart';
 import 'package:hz_xg_pda/components/tag_item/components/tag_detail_action_bar.dart';
 import 'package:hz_xg_pda/components/tag_item/components/tag_detail_header.dart';
@@ -24,7 +23,7 @@ class TagDetailPage extends StatefulWidget {
   final PalletProductItem productItem;
   final List<ProdTag> Function() loadTags;
   final Future<void> Function(List<ProdTag> selectedTags) onDeleteSelected;
-  final Future<void> Function(String prodNo) onDeleteAll;
+  final Future<void> Function(String prodOrderId) onDeleteAll;
   final Color themeColor;
   final Listenable refreshListenable;
 
@@ -80,7 +79,7 @@ class _TagDetailPageState extends State<TagDetailPage> {
       return;
     }
 
-    await widget.onDeleteAll(widget.productItem.prodNo);
+    await widget.onDeleteAll(widget.productItem.prodOrderId);
     _detailState.clearSelection();
   }
 

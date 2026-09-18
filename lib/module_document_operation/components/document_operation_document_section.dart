@@ -52,6 +52,10 @@ class DocumentOperationDocumentSection extends StatelessWidget {
               const SizedBox(height: 10),
               DropdownButtonFormField<DocumentOperationDocumentOption>(
                 value: selected,
+                hint: const Text('暂无可用单据'),
+                disabledHint: selected == null
+                    ? const Text('暂无可用单据')
+                    : Text(selected.no),
                 items: state.documentOptions
                     .map(
                       (item) => DropdownMenuItem<DocumentOperationDocumentOption>(

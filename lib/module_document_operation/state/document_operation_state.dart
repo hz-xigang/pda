@@ -211,7 +211,7 @@ class DocumentOperationState extends BaseProdTagScanState {
       "no": _selectedDocument!.no,
       "tagNos": scannedTags.map((tag) => tag.tagNo).toList(),
       if (isPrepOrder && _selectedLocation?.locCode != null)
-        "locCode": _selectedLocation!.id,
+        "locCode": _selectedLocation!.locCode,
     };
 
     if(_selectedOrderType.key == 'delivery_out'){
@@ -260,13 +260,13 @@ class DocumentOperationState extends BaseProdTagScanState {
   List<DocumentOperationDocumentOption> _documentsByType(String key) {
     switch (key) {
       case 'stock_prepare':
-        return _prepList.isEmpty ? _defaultPrepDocuments : _prepList;
+        return _prepList;
       case 'delivery_out':
-        return _shipList.isEmpty ? _defaultShipDocuments : _shipList;
+        return _shipList;
       case 'transfer':
-        return _transferList.isEmpty ? _defaultDocuments : _transferList;
+        return _transferList;
       default:
-        return _defaultDocuments;
+        return _transferList;
     }
   }
 
@@ -285,42 +285,6 @@ class DocumentOperationState extends BaseProdTagScanState {
     final matched = options.where((item) => item.id == currentId);
     _selectedDocument = matched.isEmpty ? options.first : matched.first;
   }
-
-  static const List<DocumentOperationDocumentOption> _defaultDocuments =
-      <DocumentOperationDocumentOption>[
-        DocumentOperationDocumentOption(
-          id: '5',
-          no: 'DB-001',
-        ),
-        DocumentOperationDocumentOption(
-          id: '6',
-          no: 'DB-002',
-        ),
-      ];
-
-  static const List<DocumentOperationDocumentOption> _defaultPrepDocuments =
-      <DocumentOperationDocumentOption>[
-        DocumentOperationDocumentOption(
-          id: '1',
-          no: 'BH-001',
-        ),
-        DocumentOperationDocumentOption(
-          id: '2',
-          no: 'BH-002',
-        ),
-      ];
-
-  static const List<DocumentOperationDocumentOption> _defaultShipDocuments =
-      <DocumentOperationDocumentOption>[
-        DocumentOperationDocumentOption(
-          id: '3',
-          no: 'FH-001',
-        ),
-        DocumentOperationDocumentOption(
-          id: '4',
-          no: 'FH-002',
-        ),
-      ];
 }
 
 typedef DocumentOperationScope = NotifierScope<DocumentOperationState>;

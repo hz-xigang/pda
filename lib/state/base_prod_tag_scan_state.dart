@@ -169,8 +169,10 @@ abstract class BaseProdTagScanState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> removeProductGroup(String prodNo) async {
-    scannedTags = scannedTags.where((tag) => tag.prodNo != prodNo).toList();
+  Future<void> removeProductGroup(String prodOrderId) async {
+    scannedTags = scannedTags
+        .where((tag) => (tag.prodOrderId ?? 'unknown_po') != prodOrderId)
+        .toList();
     await saveTags();
     notifyListeners();
   }

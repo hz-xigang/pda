@@ -14,7 +14,7 @@ class UnbundlePalletTotalCount extends StatelessWidget {
       count: state.totalCount,
       backgroundColor: const Color(0xFFFFF0E9),
       accentColor: const Color(0xFFE86B3C),
-      label: '托盘标签数',
+      label: '托盘标签数（张）',
     );
   }
 }
