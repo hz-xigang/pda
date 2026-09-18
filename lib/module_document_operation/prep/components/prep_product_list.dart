@@ -3,14 +3,14 @@ import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/tag_item/index.dart';
 import 'package:hz_xg_pda/components/workflow/product_list_view.dart';
 import 'package:hz_xg_pda/module_document_operation/document_operation_theme.dart';
-import 'package:hz_xg_pda/module_document_operation/state/document_operation_state.dart';
+import 'package:hz_xg_pda/module_document_operation/prep/state/prep_state.dart';
 
-class DocumentOperationProductList extends StatelessWidget {
-  const DocumentOperationProductList({super.key});
+class PrepProductList extends StatelessWidget {
+  const PrepProductList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final state = NotifierScope.watch<DocumentOperationState>(context);
+    final state = NotifierScope.watch<PrepState>(context);
 
     return ProductListView(
       products: state.products,
@@ -19,11 +19,11 @@ class DocumentOperationProductList extends StatelessWidget {
       accentColor: documentOperationAccentColor,
       iconBackgroundColor: documentOperationLightColor,
       onTapItem: (item) {
-        final documentState = NotifierScope.read<DocumentOperationState>(context);
+        final documentState = NotifierScope.read<PrepState>(context);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DocumentOperationScope(
+            builder: (context) => PrepScope(
               notifier: documentState,
               child: TagDetailPage(
                 productItem: item,

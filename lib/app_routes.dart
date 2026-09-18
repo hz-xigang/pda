@@ -16,6 +16,8 @@ class AppRoutes {
   static const String palletInbound = '/pallet-inbound';
   static const String returnInbound = '/return-inbound';
   static const String putawayMove = '/putaway-move';
-  static const String documentOperation = '/document-operation';
+  static const String transferOperation = '/transfer-operation';
+  static const String prepOperation = '/prep-operation';
+  static const String shipOperation = '/ship-operation';
   static const String sunmiPrinterTest = '/sunmi-printer-test';
 }

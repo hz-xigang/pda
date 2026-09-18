@@ -6,7 +6,9 @@ enum ProgTagCacheKey {
   inbound,
   returnInbound,
   move,
-  documentOperation,
+  transfer,
+  prep,
+  ship,
 }
 
 class ProgTagCacheProvider {

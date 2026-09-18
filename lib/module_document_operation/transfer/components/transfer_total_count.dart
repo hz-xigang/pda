@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/module_document_operation/document_operation_theme.dart';
-import 'package:hz_xg_pda/module_document_operation/state/document_operation_state.dart';
+import 'package:hz_xg_pda/module_document_operation/transfer/state/transfer_state.dart';
 
-class DocumentOperationTotalCount extends StatelessWidget {
-  const DocumentOperationTotalCount({super.key});
+class TransferTotalCount extends StatelessWidget {
+  const TransferTotalCount({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final state = NotifierScope.watch<DocumentOperationState>(context);
+    final state = NotifierScope.watch<TransferState>(context);
 
     return Container(
       width: double.infinity,

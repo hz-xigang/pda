@@ -134,11 +134,25 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.manage_search_rounded,
     ),*/
     _WorkCardData(
-      title: '单据操作',
+      title: '调拨单',
       accentColor: Color(0xFF0D8DBA),
       iconBackground: Color(0xFFE6F8FF),
-      icon: Icons.receipt_long_outlined,
-      routeName: AppRoutes.documentOperation,
+      icon: Icons.compare_arrows_rounded,
+      routeName: AppRoutes.transferOperation,
+    ),
+    _WorkCardData(
+      title: '备货单',
+      accentColor: Color(0xFF8B3DFF),
+      iconBackground: Color(0xFFF1E8FF),
+      icon: Icons.inventory_2_outlined,
+      routeName: AppRoutes.prepOperation,
+    ),
+    _WorkCardData(
+      title: '发货单',
+      accentColor: Color(0xFF00B894),
+      iconBackground: Color(0xFFE3FBF5),
+      icon: Icons.local_shipping_outlined,
+      routeName: AppRoutes.shipOperation,
     ),
     _WorkCardData(
       title: '退货入库',

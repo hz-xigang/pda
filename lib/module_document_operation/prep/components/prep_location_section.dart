@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/components/section_title.dart';
 import 'package:hz_xg_pda/entity/loc_archive.dart';
 import 'package:hz_xg_pda/module_document_operation/document_operation_theme.dart';
-import 'package:hz_xg_pda/module_document_operation/state/document_operation_state.dart';
+import 'package:hz_xg_pda/module_document_operation/prep/state/prep_state.dart';
 import 'package:hz_xg_pda/state/notifier_scope.dart';
 
-class DocumentOperationLocationSection extends StatelessWidget {
-  const DocumentOperationLocationSection({super.key});
+class PrepLocationSection extends StatelessWidget {
+  const PrepLocationSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final state = NotifierScope.watch<DocumentOperationState>(context);
+    final state = NotifierScope.watch<PrepState>(context);
     final bool isScanning = state.isScanningLocation;
     final LocArchive? selected = state.selectedLocation;
     const Color accentColor = documentOperationAccentColor;

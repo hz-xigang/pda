@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/workflow/primary_action_button.dart';
 import 'package:hz_xg_pda/module_document_operation/document_operation_theme.dart';
-import 'package:hz_xg_pda/module_document_operation/state/document_operation_state.dart';
+import 'package:hz_xg_pda/module_document_operation/transfer/state/transfer_state.dart';
 
-class DocumentOperationConfirmBar extends StatelessWidget {
-  const DocumentOperationConfirmBar({super.key});
+class TransferConfirmBar extends StatelessWidget {
+  const TransferConfirmBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final state = NotifierScope.read<DocumentOperationState>(context);
+    final state = NotifierScope.read<TransferState>(context);
 
     return PrimaryActionButton(
       onPressed: () => state.confirmOperation(context),

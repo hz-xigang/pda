@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:hz_xg_pda/state/notifier_scope.dart';
 import 'package:hz_xg_pda/components/section_title.dart';
 import 'package:hz_xg_pda/module_document_operation/document_operation_theme.dart';
-import 'package:hz_xg_pda/module_document_operation/state/document_operation_state.dart';
+import 'package:hz_xg_pda/module_document_operation/transfer/state/transfer_state.dart';
 
-import '../../entity/DocumentOperationDocumentOption.dart';
+import 'package:hz_xg_pda/entity/DocumentOperationDocumentOption.dart';
 
-class DocumentOperationDocumentSection extends StatelessWidget {
-  const DocumentOperationDocumentSection({super.key});
+class TransferDocumentSection extends StatelessWidget {
+  const TransferDocumentSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final state = NotifierScope.watch<DocumentOperationState>(context);
+    final state = NotifierScope.watch<TransferState>(context);
     final selected = state.selectedDocument;
-    final label = _buildLabel(state.selectedOrderType.key);
+    const label = '选择调拨单号';
 
 
     return Column(
@@ -106,15 +106,4 @@ class DocumentOperationDocumentSection extends StatelessWidget {
     );
   }
 
-  String _buildLabel(String orderTypeKey) {
-    switch (orderTypeKey) {
-      case 'stock_prepare':
-        return '选择备货单号';
-      case 'delivery_out':
-        return '选择发货单号';
-      case 'transfer_out':
-      default:
-        return '选择调拨单号';
-    }
-  }
 }

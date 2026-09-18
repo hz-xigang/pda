@@ -6,7 +6,9 @@ import 'package:hz_xg_pda/app_routes.dart';
 import 'package:hz_xg_pda/entity/login_user.dart';
 import 'package:hz_xg_pda/entity/prod_tag.dart';
 import 'package:hz_xg_pda/entity/production_order.dart';
-import 'package:hz_xg_pda/module_document_operation/index.dart';
+import 'package:hz_xg_pda/module_document_operation/prep/index.dart';
+import 'package:hz_xg_pda/module_document_operation/ship/index.dart';
+import 'package:hz_xg_pda/module_document_operation/transfer/index.dart';
 import 'package:hz_xg_pda/module_pallet/print/index.dart';
 import 'package:hz_xg_pda/module_pallet/unbundle/index.dart';
 import 'package:hz_xg_pda/module_putaway/inbound/index.dart';
@@ -64,7 +66,9 @@ class WarehouseApp extends StatelessWidget {
         AppRoutes.palletInbound: (context) => const InboundPage(),
         AppRoutes.returnInbound: (context) => const ReturnInboundPage(),
         AppRoutes.putawayMove: (context) => const MovePage(),
-        AppRoutes.documentOperation: (context) => const DocumentOperationPage(),
+        AppRoutes.transferOperation: (context) => const TransferOperationPage(),
+        AppRoutes.prepOperation: (context) => const PrepOperationPage(),
+        AppRoutes.shipOperation: (context) => const ShipOperationPage(),
         AppRoutes.sunmiPrinterTest: (context) => const SunmiPrinterTestPage(),
       },
       builder: EasyLoading.init(),
